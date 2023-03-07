@@ -46,8 +46,8 @@ tools:context=".LoginActivity">
             <TextView
                 style="@style/headerText"
                 android:layout_gravity="center"
-                android:text="App Snipp"
-                android:layout_marginTop="40dp"/>
+                android:layout_marginTop="40dp"
+                android:text="Sportbelt" />
             <include
                 layout="@layout/layout_register"/>
 

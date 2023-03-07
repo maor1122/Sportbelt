@@ -58,8 +58,6 @@
         <item name="android:textColor">@color/whiteTextColor</item>
         <item name="android:textStyle">bold</item>
     </style>
-
-
     <!--onboarding designs-->
 
 

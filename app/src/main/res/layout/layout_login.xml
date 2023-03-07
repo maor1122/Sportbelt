@@ -27,7 +27,7 @@
             android:layout_marginTop="@dimen/loginViewsMargin">
 
             <EditText
-                android:id="@+id/editTextUsername"
+                android:id="@+id/loginUsername"
                 style="@style/modifiedEditText"
                 android:hint="@string/login_username_hint"
                 android:inputType="textPersonName"
@@ -40,7 +40,7 @@
             android:layout_marginTop="@dimen/loginViewsMargin">
 
             <EditText
-                android:id="@+id/editTextPassword"
+                android:id="@+id/loginPassword"
                 style="@style/modifiedEditText"
                 android:hint="@string/login_password_hint"
                 android:inputType="textPassword"

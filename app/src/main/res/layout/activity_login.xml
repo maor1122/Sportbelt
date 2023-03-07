@@ -52,7 +52,9 @@ tools:context=".LoginActivity">
             <ViewFlipper
                 android:id="@+id/viewFlipper"
                 android:layout_width="fill_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:inAnimation="@android:anim/fade_in"
+                android:outAnimation="@android:anim/fade_out">
 
                 <include
                     android:id="@+id/login_layer"

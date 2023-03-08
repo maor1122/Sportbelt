@@ -56,6 +56,12 @@
             android:textColor="@color/primaryTextColor"
             android:textSize="@dimen/newsMoreTextSize" />
 
+        <TextView
+            android:id="@+id/loginErrorLabel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/design_default_color_error" />
+
         <Button
             android:id="@+id/cirLoginButton"
             style="@style/loginButton"

@@ -5,28 +5,35 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.ViewFlipper;
 
 public class LoginActivity extends AppCompatActivity {
     private ViewFlipper viewFlipper;
     private EditText loginUsername;
     private EditText loginPassword;
+    private TextView loginErrorLabel;
     private EditText registerUsername;
     private EditText registerName;
     private EditText registerEmail;
     private EditText registerPassword;
     private EditText registerPasswordConfirm;
+    private TextView registerErrorLabel;
+
 
     private void init(){
         viewFlipper = (ViewFlipper) findViewById(R.id.viewFlipper);
         loginUsername = (EditText) findViewById(R.id.loginUsername);
         loginPassword = (EditText) findViewById(R.id.loginPassword);
+        loginErrorLabel = (TextView) findViewById(R.id.loginErrorLabel);
 
         registerUsername = (EditText) findViewById(R.id.registerUsername);
         registerName = (EditText) findViewById(R.id.registerName);
         registerEmail = (EditText) findViewById(R.id.registerEmail);
         registerPassword = (EditText) findViewById(R.id.registerPassword);
         registerPasswordConfirm = (EditText) findViewById(R.id.registerPasswordConfirm);
+        registerErrorLabel = (TextView) findViewById(R.id.registerErrorLabel);
+
     }
 
     @Override
@@ -44,9 +51,9 @@ public class LoginActivity extends AppCompatActivity {
             System.out.println("Username: "+loginUsername.getText());
             System.out.println("Password: "+loginPassword.getText());
         }catch(Exception e){
-            //Need to add an error text label.
-            //TextView errorLabel = (TextView) findViewById(R.id.errorLabel);
-            //loginErrorLabel.setText(String.format(e.getMessage()));
+            loginErrorLabel.setText(e.getMessage());
+
+            //should be replaced with logs:
             e.printStackTrace();
         }
     }
@@ -61,9 +68,9 @@ public class LoginActivity extends AppCompatActivity {
             System.out.println("Password: "+registerPassword.getText());
             System.out.println("Password (Confirm): "+registerPasswordConfirm.getText());
         }catch(Exception e){
-            //Need to add an error text label.
-            //TextView errorLabel = (TextView) findViewById(R.id.errorLabel);
-            //registerErrorLabel.setText(String.format(e.getMessage()));
+            registerErrorLabel.setText(e.getMessage());
+
+            //should be replaced with logs:
             e.printStackTrace();
         }
     }

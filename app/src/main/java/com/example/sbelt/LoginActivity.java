@@ -50,6 +50,8 @@ public class LoginActivity extends AppCompatActivity {
             // Engine.login(loginUsername.getText(),loginPassword.getText());
             System.out.println("Username: "+loginUsername.getText());
             System.out.println("Password: "+loginPassword.getText());
+            // to see the error label in action:
+            System.out.println(1/0);
         }catch(Exception e){
             loginErrorLabel.setText(e.getMessage());
 

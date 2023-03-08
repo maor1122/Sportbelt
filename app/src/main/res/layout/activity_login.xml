@@ -48,9 +48,22 @@ tools:context=".LoginActivity">
                 android:layout_gravity="center"
                 android:layout_marginTop="40dp"
                 android:text="Sportbelt" />
-            <include
-                layout="@layout/layout_register"/>
 
+            <ViewFlipper
+                android:id="@+id/viewFlipper"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:inAnimation="@android:anim/fade_in"
+                android:outAnimation="@android:anim/fade_out">
+
+                <include
+                    android:id="@+id/login_layer"
+                    layout="@layout/layout_login" />
+
+                <include
+                    android:id="@+id/register_layer"
+                    layout="@layout/layout_register" />
+            </ViewFlipper>
         </LinearLayout>
         <ImageView
             android:layout_width="wrap_content"

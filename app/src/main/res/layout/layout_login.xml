@@ -27,7 +27,7 @@
             android:layout_marginTop="@dimen/loginViewsMargin">
 
             <EditText
-                android:id="@+id/loginUsername"
+                android:id="@+id/forgotPasswordEmail"
                 style="@style/modifiedEditText"
                 android:hint="@string/login_username_hint"
                 android:inputType="textPersonName"
@@ -63,7 +63,6 @@
             android:textColor="@color/design_default_color_error" />
 
         <Button
-            android:id="@+id/cirLoginButton"
             style="@style/loginButton"
             android:layout_gravity="center_horizontal"
             android:layout_marginTop="@dimen/loginViewsMargin"

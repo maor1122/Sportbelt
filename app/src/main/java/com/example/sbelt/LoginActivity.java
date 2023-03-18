@@ -23,7 +23,7 @@ public class LoginActivity extends AppCompatActivity {
 
     private void init(){
         viewFlipper = (ViewFlipper) findViewById(R.id.viewFlipper);
-        loginUsername = (EditText) findViewById(R.id.loginUsername);
+        loginUsername = (EditText) findViewById(R.id.forgotPasswordEmail);
         loginPassword = (EditText) findViewById(R.id.loginPassword);
         loginErrorLabel = (TextView) findViewById(R.id.loginErrorLabel);
         registerUsername = (EditText) findViewById(R.id.registerUsername);

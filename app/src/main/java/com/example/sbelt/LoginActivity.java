@@ -26,21 +26,18 @@ public class LoginActivity extends AppCompatActivity {
         loginUsername = (EditText) findViewById(R.id.loginUsername);
         loginPassword = (EditText) findViewById(R.id.loginPassword);
         loginErrorLabel = (TextView) findViewById(R.id.loginErrorLabel);
-
         registerUsername = (EditText) findViewById(R.id.registerUsername);
         registerName = (EditText) findViewById(R.id.registerName);
         registerEmail = (EditText) findViewById(R.id.registerEmail);
         registerPassword = (EditText) findViewById(R.id.registerPassword);
         registerPasswordConfirm = (EditText) findViewById(R.id.registerPasswordConfirm);
         registerErrorLabel = (TextView) findViewById(R.id.registerErrorLabel);
-
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
-
         init();
     }
 
@@ -50,6 +47,8 @@ public class LoginActivity extends AppCompatActivity {
             // Engine.login(loginUsername.getText(),loginPassword.getText());
             System.out.println("Username: "+loginUsername.getText());
             System.out.println("Password: "+loginPassword.getText());
+            // to see the error label in action:
+            throw new Exception("Hello world!");
         }catch(Exception e){
             loginErrorLabel.setText(e.getMessage());
 

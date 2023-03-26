@@ -1,0 +1,69 @@
+{
+  "project_info": {
+    "project_number": "970236023443",
+    "firebase_url": "https://sportbelt-23647-default-rtdb.firebaseio.com",
+    "project_id": "sportbelt-23647",
+    "storage_bucket": "sportbelt-23647.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:970236023443:android:ea2ffde157b25adad17366",
+        "android_client_info": {
+          "package_name": "com.example.engine"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "970236023443-66nech3cigbsd3acube0d3sogocekrqv.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAlUjKf-flkcS97oH9xxlRfYBGusLNwut0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "970236023443-66nech3cigbsd3acube0d3sogocekrqv.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:970236023443:android:3c708cc164cf7f80d17366",
+        "android_client_info": {
+          "package_name": "com.example.sbelt"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "970236023443-66nech3cigbsd3acube0d3sogocekrqv.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAlUjKf-flkcS97oH9xxlRfYBGusLNwut0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "970236023443-66nech3cigbsd3acube0d3sogocekrqv.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

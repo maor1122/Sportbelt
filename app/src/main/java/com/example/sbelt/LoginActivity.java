@@ -2,10 +2,12 @@ package com.example.sbelt;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.widget.ViewFlipper;
 import com.google.firebase.auth.FirebaseUser;
 
@@ -24,15 +26,17 @@ public class LoginActivity extends AppCompatActivity {
     private EditText registerPasswordConfirm;
     private TextView registerErrorLabel;
     private EditText forgotPasswordEmail;
+    private TextView forgotPassErrorLabel;
     private LoginEngine loginEngine;
 
     private void init(){
         viewFlipper = (ViewFlipper) findViewById(R.id.viewFlipper);
         forgotPassViewFlipper = (ViewFlipper) findViewById(R.id.forgotPassViewFlipper);
         forgotPasswordEmail = (EditText) findViewById(R.id.forgotPassEmail);
+        forgotPassErrorLabel = (TextView) findViewById(R.id.forgotPassErrorLabel);
         loginEmail = (EditText) findViewById(R.id.loginEmail);
         loginPassword = (EditText) findViewById(R.id.loginPassword);
-        loginErrorLabel = (TextView) findViewById(R.id.loginErrorLabel);
+        loginErrorLabel = (TextView) findViewById(R.id.forgotPassErrorLabel);
         registerName = (EditText) findViewById(R.id.registerName);
         registerEmail = (EditText) findViewById(R.id.registerEmail);
         registerPassword = (EditText) findViewById(R.id.registerPassword);
@@ -42,7 +46,12 @@ public class LoginActivity extends AppCompatActivity {
         //Checking if user is already logged in.
         loginEngine = new LoginEngine();
         if(loginEngine.isLoggedIn()){
-            switchToMainActivity(loginEngine.getUser());
+            //switchToMainActivity(loginEngine.getUser());
+            try{
+                loginEngine.logout();
+            }catch(Exception e){
+                System.out.println("error: "+e.getMessage());
+            }
         }
     }
 
@@ -60,21 +69,7 @@ public class LoginActivity extends AppCompatActivity {
             public void accept(FirebaseUser firebaseUser, Throwable throwable) {
                 if (firebaseUser != null) {
                     System.out.println("Logged in!, user uid: " + firebaseUser.getUid());
-                    CompletableFuture<String> nameFuture = loginEngine.getName(firebaseUser);
-                    nameFuture.whenComplete(new BiConsumer<String, Throwable>() {
-                        @Override
-                        public void accept(String name, Throwable throwable) {
-                            if (name != null) {
-                                System.out.println("User name: " + name);
-                                switchToMainActivity(firebaseUser);
-                            }
-                            else{
-                                System.out.println("ERROR: "+throwable.getMessage());
-                                throwable.printStackTrace();
-                                loginErrorLabel.setText(throwable.getMessage());
-                            }
-                        }
-                    });
+                    switchToMainActivity(firebaseUser);
                 } else {
                     loginErrorLabel.setText(throwable.getMessage());
                     //should be replaced with logs:
@@ -112,11 +107,24 @@ public class LoginActivity extends AppCompatActivity {
         forgotPassViewFlipper.showNext();
     }
 
+    @SuppressLint("SetTextI18n")
     public void sendEmailButtonPressed(View v){
-        try{
-            loginEngine.sendPasswordChangeEmail(forgotPasswordEmail.getText().toString());
-            forgotPassViewFlipper.showNext();
-        }catch(Exception ignored){}
+        if(forgotPasswordEmail.getText().length()==0){
+            forgotPassErrorLabel.setText("Please insert email address");
+            return;
+        }
+        CompletableFuture<Boolean> future = loginEngine.sendPasswordChangeEmail(forgotPasswordEmail.getText().toString());
+        future.whenComplete(new BiConsumer<Boolean, Throwable>() {
+            @SuppressLint("SetTextI18n")
+            @Override
+            public void accept(Boolean done, Throwable throwable) {
+                if(done!=null){
+                    forgotPassErrorLabel.setText("Error: "+throwable.getMessage());
+                }else{
+                    forgotPassErrorLabel.setText("Email sent.");
+                }
+            }
+        });
     }
 
     public void switchToMainActivity(FirebaseUser user){

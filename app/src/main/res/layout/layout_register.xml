@@ -89,7 +89,7 @@
         <TextView
             style="@style/parent"
             android:layout_marginTop="@dimen/loginViewsMargin"
-            android:onClick="switchLayers"
+            android:onClick="switchLoginLayers"
             android:text="@string/signup_login_hint"
             android:textAlignment="center"
             android:textColor="@color/primaryTextColor"

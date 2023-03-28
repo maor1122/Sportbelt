@@ -8,6 +8,7 @@ import com.google.firebase.FirebaseException;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
@@ -53,15 +54,32 @@ public class LoginEngine {
         CompletableFuture<FirebaseUser> future = new CompletableFuture<>();
         if(!password.equals(passwordConfirm)) {future.completeExceptionally(new Exception("Passwords don't match")); return future;};
         if(password.length()<=6) {future.completeExceptionally(new Exception("Passwords has to be longer then 6")); return future;};
+        if(name.length()==0){future.completeExceptionally(new Exception("Please fill in Name")); return future;}
+        if(email.length()==0){future.completeExceptionally(new Exception("Please fill in Email")); return future;}
 
         mAuth.createUserWithEmailAndPassword(email, password).addOnCompleteListener(new OnCompleteListener<AuthResult>(){
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
                 if (task.isSuccessful()) {
                     FirebaseUser user = mAuth.getCurrentUser();
-                    DatabaseReference databaseEmailReference = FirebaseDatabase.getInstance().getReference();
-                    databaseEmailReference.child("users").child(user.getUid()).setValue(name);
-                    future.complete(user);
+                    UserProfileChangeRequest profileUpdates = new UserProfileChangeRequest.Builder().setDisplayName(name).build();
+                    user.updateProfile(profileUpdates).addOnCompleteListener(new OnCompleteListener<Void>() {
+                        @Override
+                        public void onComplete(@NonNull Task<Void> task) {
+                            if(task.isSuccessful()) {
+                                future.complete(user);
+                            }else{
+                                FirebaseException e = (FirebaseException) task.getException();
+                                user.delete().addOnCompleteListener(new OnCompleteListener<Void>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<Void> task) {
+                                        if(!task.isSuccessful()) System.out.println("FETAL ERROR: "+task.getException().getMessage());
+                                    }
+                                });
+                                future.completeExceptionally(e);
+                            }
+                        }
+                    });
                 } else {
                     //System.out.println("Exception in register function: ");
                     //task.getException().printStackTrace();
@@ -73,15 +91,23 @@ public class LoginEngine {
         return future;
     }
 
-    public void sendPasswordChangeEmail(String email){
-        //Need to fill in a send email function for password reset.
+    public CompletableFuture<Boolean> sendPasswordChangeEmail(String email){
+        CompletableFuture<Boolean> future = new CompletableFuture<>();
+        mAuth.sendPasswordResetEmail(email).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if(!task.isSuccessful()){
+                    future.completeExceptionally(task.getException());
+                }else{
+                    future.complete(true);
+                }
+            }
+        });
+        return future;
     }
 
-    public CompletableFuture<String> getName(FirebaseUser user){
-        CompletableFuture<String> future = new CompletableFuture<>();
-        //Fill in the rest - needs to return a completableFuture (read about it) with the user name.
-
-        return future;
+    public String getName(FirebaseUser user){
+        return user.getProviderData().get(0).getDisplayName();
     }
 }
 

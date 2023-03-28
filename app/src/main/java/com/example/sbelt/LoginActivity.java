@@ -14,6 +14,7 @@ import java.util.function.BiConsumer;
 
 public class LoginActivity extends AppCompatActivity {
     private ViewFlipper viewFlipper;
+    private ViewFlipper forgotPassViewFlipper;
     private EditText loginEmail;
     private EditText loginPassword;
     private TextView loginErrorLabel;
@@ -22,11 +23,13 @@ public class LoginActivity extends AppCompatActivity {
     private EditText registerPassword;
     private EditText registerPasswordConfirm;
     private TextView registerErrorLabel;
+    private EditText forgotPasswordEmail;
     private LoginEngine loginEngine;
 
     private void init(){
         viewFlipper = (ViewFlipper) findViewById(R.id.viewFlipper);
-        forgotPasswordEmail = (EditText) findViewById(R.id.forgotPasswordEmail);
+        forgotPassViewFlipper = (ViewFlipper) findViewById(R.id.forgotPassViewFlipper);
+        forgotPasswordEmail = (EditText) findViewById(R.id.forgotPassEmail);
         loginEmail = (EditText) findViewById(R.id.loginEmail);
         loginPassword = (EditText) findViewById(R.id.loginPassword);
         loginErrorLabel = (TextView) findViewById(R.id.loginErrorLabel);
@@ -57,7 +60,21 @@ public class LoginActivity extends AppCompatActivity {
             public void accept(FirebaseUser firebaseUser, Throwable throwable) {
                 if (firebaseUser != null) {
                     System.out.println("Logged in!, user uid: " + firebaseUser.getUid());
-                    switchToMainActivity(firebaseUser);
+                    CompletableFuture<String> nameFuture = loginEngine.getName(firebaseUser);
+                    nameFuture.whenComplete(new BiConsumer<String, Throwable>() {
+                        @Override
+                        public void accept(String name, Throwable throwable) {
+                            if (name != null) {
+                                System.out.println("User name: " + name);
+                                switchToMainActivity(firebaseUser);
+                            }
+                            else{
+                                System.out.println("ERROR: "+throwable.getMessage());
+                                throwable.printStackTrace();
+                                loginErrorLabel.setText(throwable.getMessage());
+                            }
+                        }
+                    });
                 } else {
                     loginErrorLabel.setText(throwable.getMessage());
                     //should be replaced with logs:
@@ -87,11 +104,26 @@ public class LoginActivity extends AppCompatActivity {
         });
     }
 
-    public void switchToMainActivity(FirebaseUser user){
-
+    public void exitForgotPassword(View v){
+        forgotPassViewFlipper.setDisplayedChild(0);
     }
 
-    public void switchLayers(View v){
+    public void forgotPasswordPressed(View v){
+        forgotPassViewFlipper.showNext();
+    }
+
+    public void sendEmailButtonPressed(View v){
+        try{
+            loginEngine.sendPasswordChangeEmail(forgotPasswordEmail.getText().toString());
+            forgotPassViewFlipper.showNext();
+        }catch(Exception ignored){}
+    }
+
+    public void switchToMainActivity(FirebaseUser user){
+        //Need to fill a function to switch to the main activity, after adding a main activity.
+    }
+
+    public void switchLoginLayers(View v){
         viewFlipper.showNext();
     }
 }

@@ -72,5 +72,16 @@ public class LoginEngine {
         });
         return future;
     }
+
+    public void sendPasswordChangeEmail(String email){
+        //Need to fill in a send email function for password reset.
+    }
+
+    public CompletableFuture<String> getName(FirebaseUser user){
+        CompletableFuture<String> future = new CompletableFuture<>();
+        //Fill in the rest - needs to return a completableFuture (read about it) with the user name.
+
+        return future;
+    }
 }
 

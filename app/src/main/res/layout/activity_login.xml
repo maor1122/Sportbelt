@@ -35,7 +35,7 @@ tools:context=".LoginActivity">
 
 
             <TextView
-                style="@style/headerText"
+                style="@style/headerTextPrimary"
                 android:layout_gravity="center"
                 android:layout_marginTop="40dp"
                 android:text="Sportbelt" />
@@ -47,23 +47,27 @@ tools:context=".LoginActivity">
                 android:inAnimation="@android:anim/fade_in"
                 android:outAnimation="@android:anim/fade_out">
 
-                <include
-                    android:id="@+id/login_layer"
-                    layout="@layout/layout_login" />
+                <ViewFlipper
+                    android:id="@+id/forgotPassViewFlipper"
+                    android:layout_width="fill_parent"
+                    android:layout_height="fill_parent"
+                    android:inAnimation="@android:anim/fade_in"
+                    android:outAnimation="@android:anim/fade_out">
+
+                    <include
+                        android:id="@+id/login_layer"
+                        layout="@layout/layout_login" />
+
+                    <include
+                        android:id="@+id/forgotPass_Layout"
+                        layout="@layout/forgot_password" />
+                </ViewFlipper>
 
                 <include
                     android:id="@+id/register_layer"
                     layout="@layout/layout_register" />
             </ViewFlipper>
         </LinearLayout>
-        <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentTop="true"
-            android:layout_marginTop="30dp"
-            android:layout_marginLeft="10dp"
-            android:src="@android:drawable/ic_menu_close_clear_cancel" />
     </RelativeLayout>
 
 </ScrollView>

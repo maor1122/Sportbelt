@@ -26,6 +26,7 @@ public class LoginActivity extends AppCompatActivity {
 
     private void init(){
         viewFlipper = (ViewFlipper) findViewById(R.id.viewFlipper);
+        forgotPasswordEmail = (EditText) findViewById(R.id.forgotPasswordEmail);
         loginEmail = (EditText) findViewById(R.id.loginEmail);
         loginPassword = (EditText) findViewById(R.id.loginPassword);
         loginErrorLabel = (TextView) findViewById(R.id.loginErrorLabel);

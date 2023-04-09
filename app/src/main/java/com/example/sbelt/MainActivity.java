@@ -18,6 +18,8 @@ import android.view.View;
 import android.widget.PopupMenu;
 import android.widget.TextView;
 
+import java.util.Calendar;
+
 
 public class MainActivity extends AppCompatActivity{
 
@@ -34,7 +36,8 @@ public class MainActivity extends AppCompatActivity{
         mainToolbar = (Toolbar) findViewById(R.id.mainToolbar);
         loginEngine = new LoginEngine();
         try {
-            mainToolbar.setTitle("Hello, " + loginEngine.getName());
+            String message = getOpeningMessage();
+            mainToolbar.setTitle(message);
         }catch(Exception e){finish();}
     }
 
@@ -62,5 +65,18 @@ public class MainActivity extends AppCompatActivity{
 
     public void switchToDataActivity(View view){
         //Needs to be filled
+    }
+    public String getOpeningMessage(){
+        String name = loginEngine.getName();
+        Calendar rightNow = Calendar.getInstance();
+        int hour = rightNow.get(Calendar.HOUR_OF_DAY);
+        if(hour>6 && hour<12)
+            return "Good Morning, "+name;
+        else if (hour>12 && hour<18)
+            return "Good Afternoon, "+name;
+        else if(hour>18 && hour<21)
+            return "Good Evening, "+name;
+        else
+            return "Good Night, "+name;
     }
 }

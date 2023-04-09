@@ -4,7 +4,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:onClick="startSportbelt"
     tools:context=".MainActivity">
 
     <RelativeLayout
@@ -26,7 +25,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="?attr/actionBarSize"
                     android:layout_gravity="end"
-                    android:background="?attr/colorPrimary"
+                    android:background="@color/colorAccent"
                     android:gravity="end"
                     android:onClick="showPopupMenu"
                     app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
@@ -50,12 +49,22 @@
                     android:padding="@dimen/loginViewsMargin">
 
                     <Button
-                        android:id="@+id/button"
+                        android:id="@+id/startButton"
                         style="@style/loginButton"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_margin="10dp"
+                        android:onClick="startSportbelt"
                         android:text="Start" />
+
+                    <Button
+                        android:id="@+id/dataButton"
+                        style="@style/loginButton"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="10dp"
+                        android:onClick="switchToDataActivity"
+                        android:text="Data" />
 
                 </LinearLayout>
 

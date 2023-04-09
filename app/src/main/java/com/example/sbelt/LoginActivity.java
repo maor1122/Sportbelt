@@ -3,6 +3,7 @@ package com.example.sbelt;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.EditText;
@@ -46,7 +47,7 @@ public class LoginActivity extends AppCompatActivity {
         //Checking if user is already logged in.
         loginEngine = new LoginEngine();
         if(loginEngine.isLoggedIn()){
-            //switchToMainActivity(loginEngine.getUser());
+            switchToMainActivity();
             try{
                 loginEngine.logout();
             }catch(Exception e){
@@ -69,7 +70,7 @@ public class LoginActivity extends AppCompatActivity {
             public void accept(FirebaseUser firebaseUser, Throwable throwable) {
                 if (firebaseUser != null) {
                     System.out.println("Logged in!, user uid: " + firebaseUser.getUid());
-                    switchToMainActivity(firebaseUser);
+                    switchToMainActivity();
                 } else {
                     loginErrorLabel.setText(throwable.getMessage());
                     //should be replaced with logs:
@@ -88,7 +89,7 @@ public class LoginActivity extends AppCompatActivity {
             public void accept(FirebaseUser firebaseUser, Throwable throwable) {
                 if (firebaseUser != null) {
                     System.out.println("Registered!, user uid: " + firebaseUser.getUid());
-                    switchToMainActivity(firebaseUser);
+                    switchToMainActivity();
                 } else {
                     registerErrorLabel.setText(throwable.getMessage());
                     //should be replaced with logs:
@@ -127,8 +128,9 @@ public class LoginActivity extends AppCompatActivity {
         });
     }
 
-    public void switchToMainActivity(FirebaseUser user){
-        //Need to fill a function to switch to the main activity, after adding a main activity.
+    public void switchToMainActivity(){
+        Intent switchToMainActivityIntent = new Intent(this,MainActivity.class);
+        startActivity(switchToMainActivityIntent);
     }
 
     public void switchLoginLayers(View v){

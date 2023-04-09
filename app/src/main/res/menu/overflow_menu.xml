@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    android:gravity="end"
+    >
+    <item
+        android:id="@+id/howToUse"
+        android:title="How to use" />
+    <item
+        android:id="@+id/logoutButton"
+        android:title="Logout" />
+</menu>

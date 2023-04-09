@@ -28,11 +28,13 @@ public class LoginEngine {
         return mAuth.getCurrentUser();
     }
 
-    public void logout() throws Exception{
+    public void logout(){
         mAuth.signOut();
     }
 
     public CompletableFuture<FirebaseUser> login(String email, String password){
+        if(mAuth.getCurrentUser()!=null)
+            logout();
         CompletableFuture<FirebaseUser> future = new CompletableFuture<>();
         mAuth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
@@ -51,6 +53,8 @@ public class LoginEngine {
     }
 
     public CompletableFuture<FirebaseUser> register(String name, String email, String password, String passwordConfirm){
+        if(mAuth.getCurrentUser()!=null)
+            logout();
         CompletableFuture<FirebaseUser> future = new CompletableFuture<>();
         if(!password.equals(passwordConfirm)) {future.completeExceptionally(new Exception("Passwords don't match")); return future;};
         if(password.length()<=6) {future.completeExceptionally(new Exception("Passwords has to be longer then 6")); return future;};
@@ -106,7 +110,8 @@ public class LoginEngine {
         return future;
     }
 
-    public String getName(FirebaseUser user){
+    public String getName(){
+        FirebaseUser user = mAuth.getCurrentUser();
         return user.getProviderData().get(0).getDisplayName();
     }
 }

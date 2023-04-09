@@ -19,7 +19,7 @@ import android.widget.PopupMenu;
 import android.widget.TextView;
 
 
-public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuItemClickListener {
+public class MainActivity extends AppCompatActivity{
 
     private Toolbar mainToolbar;
     private LoginEngine loginEngine;
@@ -38,38 +38,29 @@ public class MainActivity extends AppCompatActivity implements PopupMenu.OnMenuI
         }catch(Exception e){finish();}
     }
 
-    @Override
-    public boolean onMenuItemClick(MenuItem item) {
-        int id = item.getItemId();
-
-        if (id == R.id.logoutButton) {
-            logout(findViewById(R.id.logoutButton));
-            return true;
-        }
-        if (id == R.id.howToUse) {
-            showHowToUse(findViewById(R.id.howToUse));
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
-
     public void showPopupMenu(View view){
         PopupMenu popupMenu = new PopupMenu(this, view, Gravity.RIGHT);
-        popupMenu.setOnMenuItemClickListener(this);
         popupMenu.inflate(R.menu.overflow_menu);
         popupMenu.show();
     }
 
 
-    public void logout(View view){
+    public void logout(MenuItem item){
         try {
             loginEngine.logout();
         }catch(Exception ignored){}
         finish();
     }
 
-    public void showHowToUse(View view){
+    public void showHowToUse(MenuItem item){
+        //Needs to be filled
+    }
+
+    public void startSportbelt(View view){
+        //Needs to be filled
+    }
+
+    public void switchToDataActivity(View view){
         //Needs to be filled
     }
 }

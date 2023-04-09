@@ -20,8 +20,13 @@ tools:context=".LoginActivity">
                 style="@style/parent"
                 android:background="@drawable/login_shape_bk"
                 android:orientation="vertical"
-                android:layout_weight="3"/>
-
+                android:layout_weight="3">
+            <ImageView
+                style="@style/parent"
+                android:background="@drawable/ic_login_bk"
+                android:contentDescription="login background"
+                />
+            </LinearLayout>
         </LinearLayout>
 
         <LinearLayout
@@ -35,10 +40,10 @@ tools:context=".LoginActivity">
 
 
             <TextView
-                style="@style/headerTextPrimary"
+                style="@style/headerText"
                 android:layout_gravity="center"
                 android:layout_marginTop="40dp"
-                android:text="Sportbelt" />
+                android:text="@string/app_name" />
 
             <ViewFlipper
                 android:id="@+id/viewFlipper"

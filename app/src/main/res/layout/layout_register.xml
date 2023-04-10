@@ -80,11 +80,21 @@
             android:layout_height="wrap_content"
             android:textColor="@color/design_default_color_error" />
 
-        <Button
-            style="@style/loginButton"
-            android:layout_gravity="center"
+        <br.com.simplepass.loadingbutton.customViews.CircularProgressButton
+            android:id="@+id/cirRegisterButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="@dimen/loginViewsMargin"
+            android:background="@drawable/login_button_bk"
             android:onClick="registerPressed"
-            android:text="Register" />
+            android:text="Register"
+            android:textColor="@color/whiteTextColor"
+            android:textStyle="bold"
+            app:initialCornerAngle="27dp"
+            app:spinning_bar_color="#FFF"
+            app:spinning_bar_padding="6dp"
+            app:spinning_bar_width="4dp" />
 
         <TextView
             style="@style/parent"

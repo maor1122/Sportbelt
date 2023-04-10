@@ -35,7 +35,10 @@ public class LoginEngine {
     public CompletableFuture<FirebaseUser> login(String email, String password){
         if(mAuth.getCurrentUser()!=null)
             logout();
+
         CompletableFuture<FirebaseUser> future = new CompletableFuture<>();
+        if(email.length()==0){future.completeExceptionally(new Exception("Please fill in Email")); return future;}
+        if(password.length()==0){future.completeExceptionally(new Exception("Please fill in Name")); return future;}
         mAuth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                     @Override

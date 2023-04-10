@@ -120,13 +120,28 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void accept(FirebaseUser firebaseUser, Throwable throwable) {
                 if (firebaseUser != null) {
-                    System.out.println("Registered!, user uid: " + firebaseUser.getUid());
-                    switchToMainActivity();
+                    new Handler().postDelayed(() -> {
+                        try {
+                            loginButton.revertAnimation();
+                            System.out.println("Registered!, user uid: " + firebaseUser.getUid());
+                            switchToMainActivity();
+                        }catch (Exception e){
+                            e.printStackTrace();
+                            finish();}
+                    },300);
                 } else {
-                    registerErrorLabel.setText(throwable.getMessage());
-                    //should be replaced with logs:
-                    System.out.println("Something went wrong:");
-                    throwable.printStackTrace();
+                    new Handler().postDelayed(() -> {
+                        try {
+                            Thread.sleep(1000);
+                            loginButton.revertAnimation();
+                            loginErrorLabel.setText(throwable.getMessage());
+                            //should be replaced with logs:
+                            System.out.println("Something went wrong:");
+                            throwable.printStackTrace();
+                        }catch (Exception e){
+                            e.printStackTrace();
+                            finish();}
+                    },300);
                 }
             }
         });

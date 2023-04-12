@@ -95,6 +95,7 @@ public class LoginActivity extends AppCompatActivity {
                             finish();}
                     },300);
                 } else {
+                    // this is the case we get an exception.
                     loginButton.doneLoadingAnimation(0x00a5ff, defaultLoginFailImage());
                     new Handler().postDelayed(() -> {
                         try {
@@ -114,15 +115,17 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     public void registerPressed(View v){
+        registerButton.startAnimation();
         CompletableFuture<FirebaseUser> future = loginEngine.register(registerName.getText().toString(),registerEmail.getText().toString(),
                 registerPassword.getText().toString(),registerPasswordConfirm.getText().toString());
         future.whenComplete(new BiConsumer<FirebaseUser, Throwable>() {
             @Override
             public void accept(FirebaseUser firebaseUser, Throwable throwable) {
                 if (firebaseUser != null) {
+                    registerButton.doneLoadingAnimation(0x00a5ff, defaultLoginDoneImage());
                     new Handler().postDelayed(() -> {
                         try {
-                            loginButton.revertAnimation();
+                            registerButton.revertAnimation();
                             System.out.println("Registered!, user uid: " + firebaseUser.getUid());
                             switchToMainActivity();
                         }catch (Exception e){
@@ -130,11 +133,13 @@ public class LoginActivity extends AppCompatActivity {
                             finish();}
                     },300);
                 } else {
+                    // this is the case we get an exception.
+                    registerButton.doneLoadingAnimation(0x00a5ff, defaultLoginFailImage());
                     new Handler().postDelayed(() -> {
                         try {
                             Thread.sleep(1000);
-                            loginButton.revertAnimation();
-                            loginErrorLabel.setText(throwable.getMessage());
+                            registerButton.revertAnimation();
+                            registerErrorLabel.setText(throwable.getMessage());
                             //should be replaced with logs:
                             System.out.println("Something went wrong:");
                             throwable.printStackTrace();

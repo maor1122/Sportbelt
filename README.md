@@ -1,4 +1,4 @@
-<img src="app/src/main/res/drawable-mdpi/logo.png" width="400" height="250" />
+<img src="app/src/main/res/drawable-mdpi/Sportbelt - logo.jpeg" width="400" height="250" />
 
 Sportbelt is an Android application, which provides a fun way to exercise.
 

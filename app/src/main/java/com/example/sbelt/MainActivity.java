@@ -1,15 +1,25 @@
 package com.example.sbelt;
 
+import static com.example.sbelt.ServerEngine.startServer;
+
+import android.Manifest;
 import android.annotation.SuppressLint;
+import android.content.pm.PackageManager;
+import android.net.wifi.WifiConfiguration;
+import android.net.wifi.WifiManager;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.widget.Toolbar;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.PopupMenu;
+import android.widget.Toast;
 
 import java.util.Calendar;
 
@@ -53,8 +63,76 @@ public class MainActivity extends AppCompatActivity{
         //Needs to be filled
     }
 
-    public void startSportbelt(View view){
-        //Needs to be filled
+    public void startSportbelt(View view) {
+        if (!getPremissions()) return;
+
+        WifiManager wifiManager = (WifiManager) getSystemService(WIFI_SERVICE);
+        wifiManager.setWifiEnabled(true);
+
+        try {
+            String ssid = "Sportbelt", pass = "Dh821ADSSd";
+            WifiConfiguration wifiConfiguration = new WifiConfiguration();
+            wifiConfiguration.SSID = "\"" + ssid + "\"";
+            wifiConfiguration.preSharedKey = "\"" + pass + "\"";
+
+            int netId = wifiManager.addNetwork(wifiConfiguration);
+            wifiManager.disconnect();
+            wifiManager.enableNetwork(netId, true);
+            wifiManager.reconnect();
+            System.out.println("Correct wifi is: " + wifiManager.getConnectionInfo().getSSID().toString());
+        }catch(Exception e){
+            System.out.println(e.getMessage());
+            e.printStackTrace();
+            return;
+        }
+        try{
+            startServer();
+        }catch (Exception e){
+
+        }
+
+        try {
+            startMainService();
+        }catch (Exception e){
+            //Print the message
+        }
+    }
+
+    private void startMainService() throws Exception{
+
+    }
+
+    private Boolean getPremissions(){
+
+        if(!(ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_WIFI_STATE) == PackageManager.PERMISSION_GRANTED))
+           requestAccessWifiPermission();
+        if(!(ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.CHANGE_WIFI_STATE) == PackageManager.PERMISSION_GRANTED))
+            requestChangeWifiPermission();
+        if(!(ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_WIFI_STATE) == PackageManager.PERMISSION_GRANTED))
+            return false;
+        return ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.CHANGE_WIFI_STATE) == PackageManager.PERMISSION_GRANTED;
+    }
+    private void requestAccessWifiPermission(){
+        System.out.println("Asking for first permission:");
+        ActivityCompat.requestPermissions(this,new String[] {Manifest.permission.ACCESS_WIFI_STATE},1);
+    }
+    private void requestChangeWifiPermission(){
+        System.out.println("Asking for second permission:");
+        ActivityCompat.requestPermissions(this,new String[] {Manifest.permission.CHANGE_WIFI_STATE},2);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == 1) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED)
+                System.out.println("Permission granted(1)");
+            System.out.println(grantResults.length);
+        } else if (requestCode == 2) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED)
+                System.out.println("Permission granted(2)");
+            System.out.println(grantResults.length);
+        }
     }
 
     public void switchToDataActivity(View view){

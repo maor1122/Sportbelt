@@ -1,9 +1,9 @@
 package com.example.sbelt;
 
-import static com.example.sbelt.ServerEngine.startServer;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiManager;
@@ -86,9 +86,10 @@ public class MainActivity extends AppCompatActivity{
             return;
         }
         try{
-            startServer();
+            Intent udpServerIntent = new Intent(this, ServerEngine.class);
+            startService(udpServerIntent);
         }catch (Exception e){
-
+            e.printStackTrace();
         }
 
         try {

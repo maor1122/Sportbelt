@@ -3,7 +3,6 @@ package com.example.sbelt;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.wifi.WifiConfiguration;
@@ -27,7 +26,6 @@ import java.util.Calendar;
 
 public class MainActivity extends AppCompatActivity{
 
-    private Toolbar mainToolbar;
     private LoginEngine loginEngine;
 
 
@@ -37,7 +35,7 @@ public class MainActivity extends AppCompatActivity{
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        mainToolbar = (Toolbar) findViewById(R.id.mainToolbar);
+        Toolbar mainToolbar = (Toolbar) findViewById(R.id.mainToolbar);
         loginEngine = new LoginEngine();
         try {
             String message = getOpeningMessage();
@@ -46,7 +44,7 @@ public class MainActivity extends AppCompatActivity{
     }
 
     public void showPopupMenu(View view){
-        PopupMenu popupMenu = new PopupMenu(this, view, Gravity.RIGHT);
+        PopupMenu popupMenu = new PopupMenu(this, view, Gravity.END);
         popupMenu.inflate(R.menu.overflow_menu);
         popupMenu.show();
     }
@@ -102,7 +100,7 @@ public class MainActivity extends AppCompatActivity{
         }
     }
 
-    private void startMainService() throws Exception{
+    private void startMainService() {
 
     }
 

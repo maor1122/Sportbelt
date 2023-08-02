@@ -99,6 +99,7 @@ public class LoginActivity extends AppCompatActivity {
                     loginButton.doneLoadingAnimation(0x00a5ff, defaultLoginFailImage());
                     new Handler().postDelayed(() -> {
                         try {
+                            System.out.println("Failed logging in.");
                             Thread.sleep(1000);
                             loginButton.revertAnimation();
                             loginErrorLabel.setText(throwable.getMessage());

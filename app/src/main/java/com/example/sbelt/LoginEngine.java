@@ -5,8 +5,11 @@ import androidx.annotation.NonNull;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.FirebaseException;
+import com.google.firebase.FirebaseNetworkException;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
+import com.google.firebase.auth.FirebaseAuthInvalidUserException;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.database.DatabaseReference;
@@ -47,8 +50,19 @@ public class LoginEngine {
                             FirebaseUser user = mAuth.getCurrentUser();
                             future.complete(user);
                         } else {
-                            FirebaseException e = (FirebaseException) task.getException();
-                            future.completeExceptionally(e);
+                            Exception e = task.getException();
+                            Exception newException = null;
+                            if(e instanceof FirebaseAuthInvalidUserException || e instanceof FirebaseAuthInvalidCredentialsException){
+                                newException = new Exception("User doesn't exist or password doesn't match");
+                            }
+                            else if(e instanceof FirebaseNetworkException){
+                                newException = new Exception("Please check internet connection.");
+                            }
+
+                            if(newException==null)
+                                future.completeExceptionally(e);
+                            else
+                                future.completeExceptionally(newException);
                         }
                     }
                 });

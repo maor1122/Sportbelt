@@ -14,9 +14,16 @@ public class ServerEngine extends Service {
 
     private static final String TAG = "MyUdpServerService";
     private static final int BROADCAST_PORT = 5555;
-
-    private boolean isRunning = false;
+    private static final int SPORTBELT_PORT = 4211;
+    private static final String SPORTBELT_ADDRESS = "192.168.4.22";
+    private static final int DELAY = 1000;
+    private static boolean isRunning = false;
+    private static boolean ready = false;
     private DatagramSocket socket;
+
+    public static boolean isRunning(){
+        return isRunning;
+    }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
@@ -28,36 +35,47 @@ public class ServerEngine extends Service {
 
     private void startUdpServer() {
         isRunning = true;
+        ready = false;
 
-        new Thread(new Runnable() {
+
+
+        Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
                 try {
+
+                    byte[] buffer = new byte[255];
+                    DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
+
                     socket = new DatagramSocket(BROADCAST_PORT);
                     socket.setBroadcast(true);
 
-                    byte[] buffer = new byte[1024];
-                    DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
-
-                    System.out.println(TAG+ "UDP server started. Listening for broadcast packets...");
-
-                    while (isRunning) {
+                    long time = System.currentTimeMillis();
+                    int i=0;
+                    while (isRunning && !ready){
                         socket.receive(packet);
                         String receivedData = new String(packet.getData(), 0, packet.getLength());
+                        String data = "Received data: " + receivedData;
+                        System.out.println("Received udp message: " + data + " from: " + packet.getAddress() + " port: " + packet.getPort());
+                        if (receivedData.equals("R")) ready=true;
+                    }
 
-                        System.out.println(TAG + "Received UDP packet: " + receivedData);
+                    System.out.println(TAG+ "UDP server started. Listening for broadcast packets...");
+                    while (isRunning && ready) {
+                        socket.receive(packet);
+                        String receivedData = new String(packet.getData(), 0, packet.getLength());
+                        if(receivedData.length()<=2) continue;
+                        if(time+DELAY >System.currentTimeMillis()) continue;
+                        time = System.currentTimeMillis();
 
                         // TODO: Process the received data (variable and its value) here
 
-                        // You can also send a response back to the client if needed
-                        String responseMessage = "Received data: " + receivedData;
-                        System.out.println("Received udp message: "+responseMessage);
-                        //byte[] responseData = responseMessage.getBytes();
-                        //DatagramPacket responsePacket = new DatagramPacket(responseData, responseData.length, packet.getAddress(), packet.getPort());
-                        //socket.send(responsePacket);
+                        String data = "Received data: " + receivedData;
+                        System.out.println("Received udp message: "+data);
                     }
 
                 } catch (IOException e) {
+                    System.out.println("Something went wrong: ");
                     e.printStackTrace();
                 } finally {
                     if (socket != null) {
@@ -65,13 +83,27 @@ public class ServerEngine extends Service {
                     }
                 }
             }
+        });
+        thread.start();
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                long time = System.currentTimeMillis();
+                while(!ready && isRunning)
+                if(System.currentTimeMillis() - time > 5000) {
+                    System.out.println("UDP timed out");
+                    thread.interrupt();
+                    socket.close();
+                    return;
+                }
+            }
         }).start();
     }
-
     @Override
     public void onDestroy() {
         super.onDestroy();
         isRunning = false;
+        ready = false;
     }
 
     @Nullable

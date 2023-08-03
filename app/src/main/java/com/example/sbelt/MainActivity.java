@@ -19,7 +19,6 @@ import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.PopupMenu;
-import android.widget.Toast;
 
 import java.util.Calendar;
 
@@ -27,7 +26,6 @@ import java.util.Calendar;
 
 public class MainActivity extends AppCompatActivity{
 
-    private Toolbar mainToolbar;
     private LoginEngine loginEngine;
 
 
@@ -37,7 +35,7 @@ public class MainActivity extends AppCompatActivity{
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        mainToolbar = (Toolbar) findViewById(R.id.mainToolbar);
+        Toolbar mainToolbar = (Toolbar) findViewById(R.id.mainToolbar);
         loginEngine = new LoginEngine();
         try {
             String message = getOpeningMessage();
@@ -46,7 +44,7 @@ public class MainActivity extends AppCompatActivity{
     }
 
     public void showPopupMenu(View view){
-        PopupMenu popupMenu = new PopupMenu(this, view, Gravity.RIGHT);
+        PopupMenu popupMenu = new PopupMenu(this, view, Gravity.END);
         popupMenu.inflate(R.menu.overflow_menu);
         popupMenu.show();
     }
@@ -64,12 +62,14 @@ public class MainActivity extends AppCompatActivity{
     }
 
     public void startSportbelt(View view) {
-        if (!getPremissions()) return;
-
+        if(ServerEngine.isRunning()) return;
+        if (!getPermissions()) return;
+        System.out.println("Passed permissions");
         WifiManager wifiManager = (WifiManager) getSystemService(WIFI_SERVICE);
         wifiManager.setWifiEnabled(true);
 
         try {
+
             String ssid = "Sportbelt", pass = "Dh821ADSSd";
             WifiConfiguration wifiConfiguration = new WifiConfiguration();
             wifiConfiguration.SSID = "\"" + ssid + "\"";
@@ -79,13 +79,14 @@ public class MainActivity extends AppCompatActivity{
             wifiManager.disconnect();
             wifiManager.enableNetwork(netId, true);
             wifiManager.reconnect();
-            System.out.println("Correct wifi is: " + wifiManager.getConnectionInfo().getSSID().toString());
+
         }catch(Exception e){
             System.out.println(e.getMessage());
             e.printStackTrace();
             return;
         }
         try{
+            System.out.println("Checking connections:");
             Intent udpServerIntent = new Intent(this, ServerEngine.class);
             startService(udpServerIntent);
         }catch (Exception e){
@@ -95,33 +96,42 @@ public class MainActivity extends AppCompatActivity{
         try {
             startMainService();
         }catch (Exception e){
-            //Print the message
+            e.printStackTrace();
         }
     }
 
-    private void startMainService() throws Exception{
+    private void startMainService() {
 
     }
 
-    private Boolean getPremissions(){
-
+    private Boolean getPermissions(){
         if(!(ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_WIFI_STATE) == PackageManager.PERMISSION_GRANTED))
            requestAccessWifiPermission();
         if(!(ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.CHANGE_WIFI_STATE) == PackageManager.PERMISSION_GRANTED))
             requestChangeWifiPermission();
-        if(!(ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_WIFI_STATE) == PackageManager.PERMISSION_GRANTED))
-            return false;
-        return ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.CHANGE_WIFI_STATE) == PackageManager.PERMISSION_GRANTED;
+        if(!(ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED))
+            requestAccessFineLocationPermission();
+        if(!(ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED))
+            requestAccessCoarseLocationPermission();
+        if(!(ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.INTERNET) == PackageManager.PERMISSION_GRANTED))
+            requestInternetPermission();
+        return true;
     }
     private void requestAccessWifiPermission(){
-        System.out.println("Asking for first permission:");
         ActivityCompat.requestPermissions(this,new String[] {Manifest.permission.ACCESS_WIFI_STATE},1);
     }
+    private void requestInternetPermission(){
+        ActivityCompat.requestPermissions(this,new String[] {Manifest.permission.INTERNET},5);
+    }
     private void requestChangeWifiPermission(){
-        System.out.println("Asking for second permission:");
         ActivityCompat.requestPermissions(this,new String[] {Manifest.permission.CHANGE_WIFI_STATE},2);
     }
-
+    private void requestAccessFineLocationPermission(){
+        ActivityCompat.requestPermissions(this,new String[] {Manifest.permission.ACCESS_FINE_LOCATION},3);
+    }
+    private void requestAccessCoarseLocationPermission(){
+        ActivityCompat.requestPermissions(this,new String[] {Manifest.permission.ACCESS_COARSE_LOCATION},4);
+    }
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
@@ -132,6 +142,10 @@ public class MainActivity extends AppCompatActivity{
         } else if (requestCode == 2) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED)
                 System.out.println("Permission granted(2)");
+            System.out.println(grantResults.length);
+        } else if (requestCode == 3) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED)
+                System.out.println("Permission granted(3)");
             System.out.println(grantResults.length);
         }
     }

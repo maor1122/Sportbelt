@@ -19,6 +19,7 @@ import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.PopupMenu;
+import android.widget.Toast;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -114,10 +115,8 @@ public class MainActivity extends AppCompatActivity{
             future.whenComplete((aBoolean, throwable) -> {
                 cancelWIFILoadingAnimation();
                 if(aBoolean==null){
-                    //TODO: Handle the exception.
-                    System.out.println("Error type: "+ throwable.getClass().getName());
-                    System.out.println("Error message: "+throwable.getMessage());
                     throwable.printStackTrace();
+                    Toast.makeText(getApplicationContext(),throwable.getMessage(),Toast.LENGTH_LONG).show();
                     isRunning = false;
                     ready = false;
                 }
@@ -135,7 +134,7 @@ public class MainActivity extends AppCompatActivity{
             startMainService();
         }catch (IOException e){
             e.printStackTrace();
-            //TODO: Handle the exception.
+            Toast.makeText(getApplicationContext(),e.getMessage(),Toast.LENGTH_LONG).show();
             isRunning = false;
             ready = false;
         }

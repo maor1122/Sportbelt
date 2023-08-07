@@ -16,10 +16,6 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme.NoActionBar"
         tools:targetApi="31">
-        <service
-            android:name=".ServerEngine"
-            android:enabled="true"
-            android:exported="false" />
         <activity
             android:name=".MainActivity"
             android:exported="false" />

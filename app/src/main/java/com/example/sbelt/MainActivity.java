@@ -3,6 +3,7 @@ package com.example.sbelt;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.wifi.WifiConfiguration;
@@ -32,11 +33,11 @@ import java.util.function.BiConsumer;
 public class MainActivity extends AppCompatActivity{
 
     private LoginEngine loginEngine;
-    private static final int BROADCAST_PORT = 5555;
-    private static final int DELAY = 1000;
+    public static final int BROADCAST_PORT = 5555;
+    public static final int DELAY = 1000;
     private static boolean isRunning = false;
     private static boolean ready = false;
-    private DatagramSocket socket;
+    public static DatagramSocket socket;
     private LoadingWIFI loadingWIFI;
 
     public void startWIFILoadingAnimation() throws Exception{
@@ -115,28 +116,30 @@ public class MainActivity extends AppCompatActivity{
             future.whenComplete((aBoolean, throwable) -> {
                 cancelWIFILoadingAnimation();
                 if(aBoolean==null){
-                    throwable.printStackTrace();
-                    Toast.makeText(getApplicationContext(),throwable.getMessage(),Toast.LENGTH_LONG).show();
                     isRunning = false;
                     ready = false;
+                    Context context = this;
+                    runOnUiThread(() -> Toast.makeText(context, throwable.getMessage(), Toast.LENGTH_LONG).show());
+                    throwable.printStackTrace();
+                }
+                else{
+                    try {
+                        startMainService();
+                    }catch (IOException e){
+                        e.printStackTrace();
+                        isRunning = false;
+                        ready = false;
+                        Toast.makeText(this,e.getMessage(),Toast.LENGTH_LONG).show();
+                    }
                 }
             });
 
         } catch (Exception e) {
             System.out.println(e.getMessage());
-            e.printStackTrace();
+            //e.printStackTrace();
             isRunning = false;
             ready = false;
             cancelWIFILoadingAnimation();
-            return;
-        }
-        try {
-            startMainService();
-        }catch (IOException e){
-            e.printStackTrace();
-            Toast.makeText(getApplicationContext(),e.getMessage(),Toast.LENGTH_LONG).show();
-            isRunning = false;
-            ready = false;
         }
     }
     private CompletableFuture<Boolean> startUdpServer() throws Exception{
@@ -166,7 +169,7 @@ public class MainActivity extends AppCompatActivity{
             long time = System.currentTimeMillis();
             System.out.println("Time: "+time+". Searching for Sportbelt...");
             while(!ready && isRunning)
-                if(System.currentTimeMillis() - time > 5000) {
+                if(System.currentTimeMillis() - time > 7000) {
                     System.out.println("UDP timed out");
                     thread.interrupt();
                     future.completeExceptionally(new Exception("Couldn't connect to Sportbelt, make sure Sportbelt wifi is available"));
@@ -174,27 +177,14 @@ public class MainActivity extends AppCompatActivity{
                     return;
                 }
             future.complete(true);
+            socket.close();
         }).start();
         return future;
     }
 
     private void startMainService() throws IOException{
-        System.out.println("UDP server started. Listening for broadcast packets...");
-        byte[] buffer = new byte[255];
-        DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
-        long time = System.currentTimeMillis()-DELAY;
-            while (isRunning && ready) {
-                socket.receive(packet);
-                String receivedData = new String(packet.getData(), 0, packet.getLength());
-                if (receivedData.length() <= 2) continue;
-                if (time + DELAY > System.currentTimeMillis()) continue;
-                time = System.currentTimeMillis();
-
-                // TODO: Process the received data (variable and its value) here
-
-                String data = "Received data: " + receivedData;
-                System.out.println("Received udp message: " + data);
-            }
+        Intent serviceIntent = new Intent(this,MainService.class);
+        startForegroundService(serviceIntent);
     }
 
     private Boolean getPermissions(){

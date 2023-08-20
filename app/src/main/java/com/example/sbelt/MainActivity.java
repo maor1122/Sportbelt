@@ -3,6 +3,7 @@ package com.example.sbelt;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.wifi.WifiConfiguration;
@@ -15,20 +16,39 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import android.provider.Settings;
 import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.PopupMenu;
+import android.widget.Toast;
 
+import java.io.IOException;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
 import java.util.Calendar;
-
+import java.util.concurrent.CompletableFuture;
+import java.util.function.BiConsumer;
 
 
 public class MainActivity extends AppCompatActivity{
 
     private LoginEngine loginEngine;
+    public static final int BROADCAST_PORT = 5555;
+    public static final int DELAY = 1000;
+    private static boolean isRunning = false;
+    private static boolean ready = false;
+    public static DatagramSocket socket;
+    private LoadingWIFI loadingWIFI;
 
-
+    public void startWIFILoadingAnimation() throws Exception{
+        loadingWIFI.show();
+    }
+    public void cancelWIFILoadingAnimation(){
+        try {
+            loadingWIFI.cancel();
+        }catch (Exception ignored){}
+    }
     @SuppressLint("SetTextI18n")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,6 +57,7 @@ public class MainActivity extends AppCompatActivity{
 
         Toolbar mainToolbar = (Toolbar) findViewById(R.id.mainToolbar);
         loginEngine = new LoginEngine();
+        loadingWIFI = new LoadingWIFI(this);
         try {
             String message = getOpeningMessage();
             mainToolbar.setTitle(message);
@@ -61,15 +82,28 @@ public class MainActivity extends AppCompatActivity{
         //Needs to be filled
     }
 
+
+
     public void startSportbelt(View view) {
-        if(ServerEngine.isRunning()) return;
-        if (!getPermissions()) return;
-        System.out.println("Passed permissions");
-        WifiManager wifiManager = (WifiManager) getSystemService(WIFI_SERVICE);
-        wifiManager.setWifiEnabled(true);
-
         try {
+            startWIFILoadingAnimation();
+            if (isRunning) {
+                System.out.println("Error - sportbelt already running");
+                cancelWIFILoadingAnimation();
+                return;
+            }
+            isRunning = true;
+            if (!getPermissions()) {
+                System.out.println("Error - permissions denied");
+                cancelWIFILoadingAnimation();
+                return;
+            }
+            System.out.println("Passed permissions");
+            startWIFILoadingAnimation();
+            ready = false;
 
+            WifiManager wifiManager = (WifiManager) getSystemService(WIFI_SERVICE);
+            wifiManager.setWifiEnabled(true);
             String ssid = "Sportbelt", pass = "Dh821ADSSd";
             WifiConfiguration wifiConfiguration = new WifiConfiguration();
             wifiConfiguration.SSID = "\"" + ssid + "\"";
@@ -79,40 +113,87 @@ public class MainActivity extends AppCompatActivity{
             wifiManager.disconnect();
             wifiManager.enableNetwork(netId, true);
             wifiManager.reconnect();
+            CompletableFuture<Boolean> future = startUdpServer();
+            future.whenComplete((aBoolean, throwable) -> {
+                cancelWIFILoadingAnimation();
+                if(aBoolean==null){
+                    isRunning = false;
+                    ready = false;
+                    Context context = this;
+                    runOnUiThread(() -> Toast.makeText(context, throwable.getMessage(), Toast.LENGTH_LONG).show());
+                    throwable.printStackTrace();
+                }
+                else{
+                    try {
+                        startMainService();
+                    }catch (IOException e){
+                        e.printStackTrace();
+                        isRunning = false;
+                        ready = false;
+                        Toast.makeText(this,e.getMessage(),Toast.LENGTH_LONG).show();
+                    }
+                }
+            });
 
-        }catch(Exception e){
+        } catch (Exception e) {
             System.out.println(e.getMessage());
-            e.printStackTrace();
-            return;
-        }
-        try{
-            System.out.println("Checking connections:");
-            Intent udpServerIntent = new Intent(this, ServerEngine.class);
-            startService(udpServerIntent);
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-
-        try {
-            startMainService();
-        }catch (Exception e){
-            e.printStackTrace();
+            //e.printStackTrace();
+            isRunning = false;
+            ready = false;
+            cancelWIFILoadingAnimation();
         }
     }
+    private CompletableFuture<Boolean> startUdpServer() throws Exception{
+        CompletableFuture<Boolean> future = new CompletableFuture<>();
+        Thread thread = new Thread(() -> {
+            try {
+                byte[] buffer = new byte[255];
+                DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
+                socket = new DatagramSocket(BROADCAST_PORT);
+                socket.setBroadcast(true);
+                while (isRunning && !ready){
+                    socket.receive(packet);
+                    String receivedData = new String(packet.getData(), 0, packet.getLength());
+                    String data = "Received data: " + receivedData;
+                    System.out.println("Received udp message: " + data + " from: " + packet.getAddress() + " port: " + packet.getPort());
+                    if (receivedData.equals("R")) ready=true;
+                }
+            } catch (Exception ignored) {
+            } finally {
+                if (socket != null) {
+                    socket.close();
+                }
+            }
+        });
+        thread.start();
+        new Thread(() -> {
+            long time = System.currentTimeMillis();
+            System.out.println("Time: "+time+". Searching for Sportbelt...");
+            while(!ready && isRunning)
+                if(System.currentTimeMillis() - time > 7000) {
+                    System.out.println("UDP timed out");
+                    thread.interrupt();
+                    future.completeExceptionally(new Exception("Couldn't connect to Sportbelt, make sure Sportbelt wifi is available"));
+                    socket.close();
+                    return;
+                }
+            future.complete(true);
+            socket.close();
+        }).start();
+        return future;
+    }
 
-    private void startMainService() {
+    private void startMainService() throws IOException{
+        //Intent serviceIntent = new Intent(this,MainService.class);
+        //startForegroundService(serviceIntent);
+        Intent serviceIntent = new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS);
+        startActivity(serviceIntent);
 
     }
 
     private Boolean getPermissions(){
         if(!(ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_WIFI_STATE) == PackageManager.PERMISSION_GRANTED))
            requestAccessWifiPermission();
-        if(!(ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.CHANGE_WIFI_STATE) == PackageManager.PERMISSION_GRANTED))
-            requestChangeWifiPermission();
-        if(!(ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED))
-            requestAccessFineLocationPermission();
-        if(!(ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED))
-            requestAccessCoarseLocationPermission();
         if(!(ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.INTERNET) == PackageManager.PERMISSION_GRANTED))
             requestInternetPermission();
         return true;
@@ -121,16 +202,7 @@ public class MainActivity extends AppCompatActivity{
         ActivityCompat.requestPermissions(this,new String[] {Manifest.permission.ACCESS_WIFI_STATE},1);
     }
     private void requestInternetPermission(){
-        ActivityCompat.requestPermissions(this,new String[] {Manifest.permission.INTERNET},5);
-    }
-    private void requestChangeWifiPermission(){
-        ActivityCompat.requestPermissions(this,new String[] {Manifest.permission.CHANGE_WIFI_STATE},2);
-    }
-    private void requestAccessFineLocationPermission(){
-        ActivityCompat.requestPermissions(this,new String[] {Manifest.permission.ACCESS_FINE_LOCATION},3);
-    }
-    private void requestAccessCoarseLocationPermission(){
-        ActivityCompat.requestPermissions(this,new String[] {Manifest.permission.ACCESS_COARSE_LOCATION},4);
+        ActivityCompat.requestPermissions(this,new String[] {Manifest.permission.INTERNET},2);
     }
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
@@ -143,16 +215,14 @@ public class MainActivity extends AppCompatActivity{
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED)
                 System.out.println("Permission granted(2)");
             System.out.println(grantResults.length);
-        } else if (requestCode == 3) {
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED)
-                System.out.println("Permission granted(3)");
-            System.out.println(grantResults.length);
         }
     }
 
     public void switchToDataActivity(View view){
-        //Needs to be filled
+        Intent switchToMainActivityIntent = new Intent(this,DataActivity.class);
+        startActivity(switchToMainActivityIntent);
     }
+
     public String getOpeningMessage(){
         String name = loginEngine.getName();
         Calendar rightNow = Calendar.getInstance();

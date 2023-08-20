@@ -6,4 +6,7 @@
     <string name="login_password_confirm_hint">Password (Confirm)</string>
     <string name="signup_login_hint">Already have an account? Sign In</string>
     <string name="login_signup_hint">Don\'t have an account? Sign Up</string>
+    <string name="loading_wifi_animation_URL">...</string>
+    <string name="accessibility_service_description">Sportbelt background service</string>
+    <string name="accessibility_service_label">Sportbelt Service</string>
 </resources>

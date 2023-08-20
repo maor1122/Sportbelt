@@ -54,7 +54,7 @@ public class LoginEngine {
                             newException = new Exception("User doesn't exist or password doesn't match");
                         }
                         else if(e instanceof FirebaseNetworkException){
-                            newException = new Exception("Please check internet connection.");
+                            newException = new Exception("Please check your internet connection.");
                         }
 
                         if(newException==null)

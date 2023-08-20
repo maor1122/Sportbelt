@@ -16,6 +16,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import android.provider.Settings;
 import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
@@ -183,8 +184,11 @@ public class MainActivity extends AppCompatActivity{
     }
 
     private void startMainService() throws IOException{
-        Intent serviceIntent = new Intent(this,MainService.class);
-        startForegroundService(serviceIntent);
+        //Intent serviceIntent = new Intent(this,MainService.class);
+        //startForegroundService(serviceIntent);
+        Intent serviceIntent = new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS);
+        startActivity(serviceIntent);
+
     }
 
     private Boolean getPermissions(){
@@ -215,8 +219,10 @@ public class MainActivity extends AppCompatActivity{
     }
 
     public void switchToDataActivity(View view){
-        //Needs to be filled
+        Intent switchToMainActivityIntent = new Intent(this,DataActivity.class);
+        startActivity(switchToMainActivityIntent);
     }
+
     public String getOpeningMessage(){
         String name = loginEngine.getName();
         Calendar rightNow = Calendar.getInstance();

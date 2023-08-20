@@ -3,14 +3,17 @@ package com.example.sbelt;
 import static com.example.sbelt.MainActivity.DELAY;
 import static com.example.sbelt.MainActivity.BROADCAST_PORT;
 
+import android.accessibilityservice.GestureDescription;
 import android.app.Instrumentation;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.Service;
 import android.content.Intent;
+import android.graphics.Path;
 import android.os.IBinder;
 import android.os.SystemClock;
+import android.util.DisplayMetrics;
 import android.view.InputDevice;
 import android.view.MotionEvent;
 import android.view.View;
@@ -112,12 +115,14 @@ public class MainService extends Service {
     private void swipeUP(){
         swipe(500,500,0,300,5);
     }
-    /*
+/*
     private void swipe2(float fromX,float toX, float fromY,float toY, int stepCount){
         long downTime = SystemClock.uptimeMillis();
         long eventTime = SystemClock.uptimeMillis();
-
     }*/
+
+
+
     private void swipe(float fromX,float toX, float fromY,float toY, int stepCount){
         long downTime = SystemClock.uptimeMillis();
         long eventTime = SystemClock.uptimeMillis();

@@ -2,10 +2,13 @@ package com.example.sbelt;
 
 
 import android.Manifest;
+import android.accessibilityservice.AccessibilityService;
+import android.accessibilityservice.AccessibilityServiceInfo;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.pm.ServiceInfo;
 import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
@@ -20,13 +23,16 @@ import android.provider.Settings;
 import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.accessibility.AccessibilityManager;
 import android.widget.PopupMenu;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.util.Calendar;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.BiConsumer;
 
@@ -38,6 +44,8 @@ public class MainActivity extends AppCompatActivity{
     public static final int DELAY = 1000;
     private static boolean isRunning = false;
     private static boolean ready = false;
+    private static boolean startPressed = false;
+    private TextView title;
     public static DatagramSocket socket;
     private LoadingWIFI loadingWIFI;
 
@@ -54,52 +62,45 @@ public class MainActivity extends AppCompatActivity{
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        Toolbar mainToolbar = (Toolbar) findViewById(R.id.mainToolbar);
         loginEngine = new LoginEngine();
         loadingWIFI = new LoadingWIFI(this);
+        title = (TextView) findViewById(R.id.menuTitle);
         try {
             String message = getOpeningMessage();
-            mainToolbar.setTitle(message);
+            title.setText(message);
         }catch(Exception e){finish();}
     }
 
-    public void showPopupMenu(View view){
-        PopupMenu popupMenu = new PopupMenu(this, view, Gravity.END);
-        popupMenu.inflate(R.menu.overflow_menu);
-        popupMenu.show();
-    }
 
-
-    public void logout(MenuItem item){
+    public void logout(View view){
         try {
             loginEngine.logout();
         }catch(Exception ignored){}
         finish();
     }
 
-    public void showHowToUse(MenuItem item){
-        //Needs to be filled
+    public void howToUse(View view){
+        //TODO: Fill function.
     }
 
-
+    public void saveData(View view){
+        //TODO: Fill function
+    }
 
     public void startSportbelt(View view) {
         try {
-            startWIFILoadingAnimation();
-            if (isRunning) {
-                System.out.println("Error - sportbelt already running");
-                cancelWIFILoadingAnimation();
+            if (startPressed) {
                 return;
             }
+            startPressed = true;
             isRunning = true;
+            startWIFILoadingAnimation();
             if (!getPermissions()) {
                 System.out.println("Error - permissions denied");
                 cancelWIFILoadingAnimation();
                 return;
             }
             System.out.println("Passed permissions");
-            startWIFILoadingAnimation();
             ready = false;
 
             WifiManager wifiManager = (WifiManager) getSystemService(WIFI_SERVICE);
@@ -116,6 +117,7 @@ public class MainActivity extends AppCompatActivity{
             CompletableFuture<Boolean> future = startUdpServer();
             future.whenComplete((aBoolean, throwable) -> {
                 cancelWIFILoadingAnimation();
+                startPressed = false;
                 if(aBoolean==null){
                     isRunning = false;
                     ready = false;
@@ -137,13 +139,13 @@ public class MainActivity extends AppCompatActivity{
 
         } catch (Exception e) {
             System.out.println(e.getMessage());
-            //e.printStackTrace();
             isRunning = false;
             ready = false;
+            startPressed = false;
             cancelWIFILoadingAnimation();
         }
     }
-    private CompletableFuture<Boolean> startUdpServer() throws Exception{
+    private CompletableFuture<Boolean> startUdpServer(){
         CompletableFuture<Boolean> future = new CompletableFuture<>();
         Thread thread = new Thread(() -> {
             try {
@@ -184,11 +186,23 @@ public class MainActivity extends AppCompatActivity{
     }
 
     private void startMainService() throws IOException{
-        //Intent serviceIntent = new Intent(this,MainService.class);
-        //startForegroundService(serviceIntent);
-        Intent serviceIntent = new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS);
-        startActivity(serviceIntent);
+        if (!isAccessibilityServiceEnabled(this, MyAccessibilityService.class)) {
+            Intent serviceIntent = new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS);
+            startActivity(serviceIntent);
+        }
+    }
 
+    public static boolean isAccessibilityServiceEnabled(Context context, Class<? extends AccessibilityService> service) {
+        AccessibilityManager am = (AccessibilityManager) context.getSystemService(Context.ACCESSIBILITY_SERVICE);
+        List<AccessibilityServiceInfo> enabledServices = am.getEnabledAccessibilityServiceList(AccessibilityServiceInfo.FEEDBACK_ALL_MASK);
+
+        for (AccessibilityServiceInfo enabledService : enabledServices) {
+            ServiceInfo enabledServiceInfo = enabledService.getResolveInfo().serviceInfo;
+            if (enabledServiceInfo.packageName.equals(context.getPackageName()) && enabledServiceInfo.name.equals(service.getName()))
+                return true;
+        }
+
+        return false;
     }
 
     private Boolean getPermissions(){
@@ -228,12 +242,12 @@ public class MainActivity extends AppCompatActivity{
         Calendar rightNow = Calendar.getInstance();
         int hour = rightNow.get(Calendar.HOUR_OF_DAY);
         if(hour>6 && hour<12)
-            return "Good Morning, "+name;
+            return "Good Morning,\n"+name;
         else if (hour>12 && hour<18)
-            return "Good Afternoon, "+name;
+            return "Good Afternoon,\n"+name;
         else if(hour>18 && hour<21)
-            return "Good Evening, "+name;
+            return "Good Evening,\n"+name;
         else
-            return "Good Night, "+name;
+            return "Good Night,\n"+name;
     }
 }

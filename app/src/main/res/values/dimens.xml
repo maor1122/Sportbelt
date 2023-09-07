@@ -1,4 +1,14 @@
 <resources>
+    <dimen name="normalPadding">30dp</dimen>
+    <dimen name="img_card_height">120dp</dimen>
+    <dimen name="top_text_card">20dp</dimen>
+    <dimen name="top_text_subtitle_card">4dp</dimen>
+    <dimen name="d_number_courses">11sp</dimen>
+    <dimen name="card_radius">20dp</dimen>
+
+    <dimen name="fab_margin">24dp</dimen>
+    <dimen name="horizontal_dashboard">10dp</dimen>
+    <dimen name="horizontal_card">12dp</dimen>
     <!--dimes for design 3-->
     <dimen name="headerTextSize">22sp</dimen>
     <dimen name="newsMoreTextSize">12sp</dimen>

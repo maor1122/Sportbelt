@@ -3,28 +3,33 @@ package com.example.sbelt;
 import static com.example.sbelt.MainActivity.BROADCAST_PORT;
 import static com.example.sbelt.MainActivity.DELAY;
 import static com.example.sbelt.MainActivity.socket;
+import static com.example.sbelt.utils.utils.PREFS_NAME;
 
 import android.accessibilityservice.AccessibilityService;
-import android.accessibilityservice.AccessibilityServiceInfo;
 import android.accessibilityservice.GestureDescription;
-import android.app.Notification;
-import android.app.NotificationChannel;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
-import android.content.Intent;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Path;
 import android.util.DisplayMetrics;
 import android.view.accessibility.AccessibilityEvent;
-import android.widget.Toast;
+
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
 
 public class MyAccessibilityService extends AccessibilityService {
     private float screenHeight;
     private float screenWidth;
     private long lastSignalTime;
+    private LoginEngine loginEngine;
+    private String Uid;
     @Override
     public void onAccessibilityEvent(AccessibilityEvent accessibilityEvent) {
 
@@ -38,6 +43,8 @@ public class MyAccessibilityService extends AccessibilityService {
     @Override
     protected void onServiceConnected() {
         super.onServiceConnected();
+        loginEngine = new LoginEngine();
+        Uid = loginEngine.getUser().getUid();
         screenHeight = getScreenHeight();
         screenWidth = getScreenWidth();
         System.out.println("Starting Accessibility service");
@@ -48,6 +55,8 @@ public class MyAccessibilityService extends AccessibilityService {
 
     private void mainFunction(){
         System.out.println("UDP server started. Listening for broadcast packets...");
+        int gestures=0;
+        Date startDate = Calendar.getInstance().getTime();
         try {
             byte[] buffer = new byte[255];
             DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
@@ -74,6 +83,7 @@ public class MyAccessibilityService extends AccessibilityService {
                     System.out.println("Received udp message: " + "Received data: " + receivedData);
                     if (data.length < 2) continue;
                     try {
+                        gestures++;
                         switch (data[0]) {
                             case "x":
                                 if (Double.parseDouble(data[1]) < 0) {
@@ -91,6 +101,8 @@ public class MyAccessibilityService extends AccessibilityService {
                         }
                         if (!direction.equals("NULL"))
                             swipe(direction);
+                        else
+                            gestures--;
                     }catch(NumberFormatException ignored){}
                 }
             }
@@ -101,19 +113,42 @@ public class MyAccessibilityService extends AccessibilityService {
             try {
                 Thread.sleep(1000);
             } catch (InterruptedException ignored) {}
-            mainFunction();
+            if(gestures>0) {
+                GestureData newGestureData = new GestureData(gestures, startDate, Calendar.getInstance().getTime());
+                List<GestureData> lst = getGestureDataList(Uid);
+                if (lst == null)
+                    lst = new ArrayList<>();
+                lst.add(newGestureData);
+                System.out.println("Saving locally data of size: "+lst.size());
+                saveUserData(lst, Uid);
+            }
+            disableSelf();
         }
     }
+
+    private void saveUserData(List<GestureData> gestureDataList,String Uid){
+        SharedPreferences preferences = getApplicationContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = preferences.edit();
+        Gson gson = new Gson();
+        String gestureDataListJson = gson.toJson(gestureDataList);
+        editor.putString(Uid,gestureDataListJson);
+        editor.apply();
+    }
+
+    public List<GestureData> getGestureDataList(String uid) {
+        SharedPreferences preferences = getApplicationContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        Gson gson = new Gson();
+        String gestureDataListJson = preferences.getString(uid, "");
+        return gson.fromJson(gestureDataListJson, new TypeToken<List<GestureData>>(){}.getType());
+    }
+
     private void checkLastSignalTime(){
         while(true){
             if(System.currentTimeMillis()-lastSignalTime > 5000){
-                if (socket != null)
+                if (socket != null) {
                     socket.close();
-
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException ignored) {}
-                mainFunction();
+                    return;
+                }
             }
         }
     }

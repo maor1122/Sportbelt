@@ -1,8 +1,9 @@
 package com.example.sbelt;
 
-import static com.example.sbelt.MainActivity.BROADCAST_PORT;
-import static com.example.sbelt.MainActivity.DELAY;
 import static com.example.sbelt.MainActivity.socket;
+import static com.example.sbelt.utils.DataManager.saveUserDataLocally;
+import static com.example.sbelt.utils.utils.BROADCAST_PORT;
+import static com.example.sbelt.utils.utils.DELAY;
 import static com.example.sbelt.utils.utils.PREFS_NAME;
 
 import android.accessibilityservice.AccessibilityService;
@@ -13,6 +14,7 @@ import android.graphics.Path;
 import android.util.DisplayMetrics;
 import android.view.accessibility.AccessibilityEvent;
 
+import com.example.sbelt.utils.GestureData;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
@@ -28,7 +30,6 @@ public class MyAccessibilityService extends AccessibilityService {
     private float screenHeight;
     private float screenWidth;
     private long lastSignalTime;
-    private LoginEngine loginEngine;
     private String Uid;
     @Override
     public void onAccessibilityEvent(AccessibilityEvent accessibilityEvent) {
@@ -43,12 +44,11 @@ public class MyAccessibilityService extends AccessibilityService {
     @Override
     protected void onServiceConnected() {
         super.onServiceConnected();
-        loginEngine = new LoginEngine();
+        LoginEngine loginEngine = new LoginEngine();
         Uid = loginEngine.getUser().getUid();
         screenHeight = getScreenHeight();
         screenWidth = getScreenWidth();
         System.out.println("Starting Accessibility service");
-        final String CHANNEL_ID = "Sportbelt Service";
         new Thread(this::mainFunction).start();
     }
 
@@ -120,20 +120,13 @@ public class MyAccessibilityService extends AccessibilityService {
                     lst = new ArrayList<>();
                 lst.add(newGestureData);
                 System.out.println("Saving locally data of size: "+lst.size());
-                saveUserData(lst, Uid);
+                saveUserDataLocally(lst, Uid,getApplicationContext());
             }
             disableSelf();
         }
     }
 
-    private void saveUserData(List<GestureData> gestureDataList,String Uid){
-        SharedPreferences preferences = getApplicationContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = preferences.edit();
-        Gson gson = new Gson();
-        String gestureDataListJson = gson.toJson(gestureDataList);
-        editor.putString(Uid,gestureDataListJson);
-        editor.apply();
-    }
+
 
     public List<GestureData> getGestureDataList(String uid) {
         SharedPreferences preferences = getApplicationContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);

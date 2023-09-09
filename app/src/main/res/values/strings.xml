@@ -13,4 +13,6 @@
     <string name="how_to_use">How To Use</string>
     <string name="logout">Logout</string>
     <string name="welcome">Welcome</string>
+    <string name="back">Back</string>
+    <string name="last_week">Past Week Gestures</string>
 </resources>

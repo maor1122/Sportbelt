@@ -1,17 +1,17 @@
 package com.example.sbelt;
 
 
-import static com.example.sbelt.utils.utils.PREFS_NAME;
+import static com.example.sbelt.utils.DataManager.getGestureDataOnline;
+import static com.example.sbelt.utils.DataManager.tryToSaveDataOnline;
+import static com.example.sbelt.utils.utils.BROADCAST_PORT;
+import static com.example.sbelt.utils.utils.getOpeningMessage;
+import static com.example.sbelt.utils.utils.isAccessibilityServiceEnabled;
 
 import android.Manifest;
-import android.accessibilityservice.AccessibilityService;
-import android.accessibilityservice.AccessibilityServiceInfo;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.content.pm.ServiceInfo;
 import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
@@ -21,27 +21,21 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import android.os.Parcelable;
 import android.provider.Settings;
 import android.view.View;
-import android.view.accessibility.AccessibilityManager;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.sbelt.utils.GestureData;
 import com.example.sbelt.utils.LoadingData;
 import com.example.sbelt.utils.LoadingWIFI;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
@@ -49,33 +43,14 @@ import java.util.concurrent.CompletableFuture;
 public class MainActivity extends AppCompatActivity{
 
     private LoginEngine loginEngine;
-    public static int BROADCAST_PORT = 5555;
-    public static final int DELAY = 1000;
+    private String uid;
     private static boolean isRunning = false;
     private static boolean ready = false;
     private static boolean loading = false;
-    private TextView title;
     public static DatagramSocket socket;
     private LoadingWIFI loadingWIFI;
     private LoadingData loadingData;
 
-    public void startWIFILoadingAnimation(){
-        loadingWIFI.show();
-    }
-    public void cancelWIFILoadingAnimation(){
-        try {
-            loadingWIFI.cancel();
-        }catch (Exception ignored){}
-    }
-
-    public void startDataLoadingAnimation(){
-        loadingData.show();
-    }
-    public void cancelDataLoadingAnimation(){
-        try {
-            loadingData.cancel();
-        }catch (Exception ignored){}
-    }
 
     @SuppressLint("SetTextI18n")
     @Override
@@ -83,11 +58,12 @@ public class MainActivity extends AppCompatActivity{
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         loginEngine = new LoginEngine();
+        uid = loginEngine.getUser().getUid();
         loadingWIFI = new LoadingWIFI(this);
         loadingData = new LoadingData(this);
-        title = (TextView) findViewById(R.id.menuTitle);
+        TextView title = findViewById(R.id.menuTitle);
         try {
-            String message = getOpeningMessage();
+            String message = getOpeningMessage(loginEngine.getName());
             title.setText(message);
         }catch(Exception e){finish();}
     }
@@ -101,82 +77,29 @@ public class MainActivity extends AppCompatActivity{
     }
 
     public void howToUse(View view){
+        if (loading) {
+            return;
+        }
+        loading = true;
         //TODO: Fill function.
+        loading=false;
     }
 
     public void saveData(View view){
         if(loading)
             return;
         loading = true;
-        startDataLoadingAnimation();
-        CompletableFuture<Boolean> future = tryToSaveData();
+        loadingData.show();
+        String uid = loginEngine.getUser().getUid();
+        CompletableFuture<Boolean> future = tryToSaveDataOnline(uid,FirebaseDatabase.getInstance().getReference().child("users").child(uid),this);
         future.whenComplete((aBoolean, throwable) -> {
-            cancelDataLoadingAnimation();
+            loadingData.cancel();
             if(aBoolean==null) {
                 runOnUiThread(() -> Toast.makeText(this, throwable.getMessage(), Toast.LENGTH_LONG).show());
                 throwable.printStackTrace();
             }
             loading = false;
         });
-    }
-    public CompletableFuture<Boolean> tryToSaveData(){
-        String uid = loginEngine.getUser().getUid();
-        CompletableFuture<Boolean> future = new CompletableFuture<>();
-        Thread thread = new Thread(() -> {
-            List<GestureData> newData = getGestureDataList(uid);
-            if(newData==null){
-                future.completeExceptionally(new Exception("No data to save."));
-                return;
-            }
-            System.out.println("Saving data of size: "+newData.size());
-            try{
-                DatabaseReference userRef = FirebaseDatabase.getInstance().getReference().child("users").child(uid);
-                userRef.child("gestures").addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot snapshot) {
-                        List<GestureData> existingData = new ArrayList<>();
-                        for (DataSnapshot gestureSnapshot : snapshot.getChildren()) {
-                            GestureData gestureData = gestureSnapshot.getValue(GestureData.class);
-                            if (gestureData != null) {
-                                existingData.add(gestureData);
-                            }
-                        }
-                        existingData.addAll(newData);
-                        removeGestureDataList(uid); //Delete all saved data.
-                        userRef.child("gestures").setValue(existingData);
-                        future.complete(true);
-                    }
-
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError error) {
-
-                    }
-                });
-            }catch (Exception e){
-                future.completeExceptionally(e);
-            }
-        });
-        thread.start();
-        return future;
-    }
-
-    public List<GestureData> getGestureDataList(String uid) {
-        SharedPreferences preferences = this.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-        Gson gson = new Gson();
-
-        String gestureDataListJson = preferences.getString(uid, "");
-        if(gestureDataListJson.equals(""))
-            return null;
-        return gson.fromJson(gestureDataListJson, new TypeToken<List<GestureData>>(){}.getType());
-    }
-
-    public void removeGestureDataList(String uid) {
-        SharedPreferences preferences = this.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = preferences.edit();
-
-        // Remove the data associated with the user's Uid
-        editor.remove(uid);
-        editor.apply();
     }
 
     public void startSportbelt(View view) {
@@ -186,10 +109,10 @@ public class MainActivity extends AppCompatActivity{
         loading = true;
         isRunning = true;
         try {
-            startWIFILoadingAnimation();
+            loadingWIFI.show();
             if (!getPermissions()) {
                 System.out.println("Error - permissions denied");
-                cancelWIFILoadingAnimation();
+                loadingWIFI.cancel();
                 return;
             }
             System.out.println("Passed permissions");
@@ -208,7 +131,7 @@ public class MainActivity extends AppCompatActivity{
             wifiManager.reconnect();
             CompletableFuture<Boolean> future = startUdpServer();
             future.whenComplete((aBoolean, throwable) -> {
-                cancelWIFILoadingAnimation();
+                loadingWIFI.cancel();
                 if(aBoolean==null){
                     isRunning = false;
                     ready = false;
@@ -233,7 +156,7 @@ public class MainActivity extends AppCompatActivity{
             isRunning = false;
             ready = false;
             loading = false;
-            cancelWIFILoadingAnimation();
+            loadingWIFI.cancel();
         }
     }
     private CompletableFuture<Boolean> startUdpServer(){
@@ -284,17 +207,7 @@ public class MainActivity extends AppCompatActivity{
         }
     }
 
-    public static boolean isAccessibilityServiceEnabled(Context context, Class<? extends AccessibilityService> service) {
-        AccessibilityManager am = (AccessibilityManager) context.getSystemService(Context.ACCESSIBILITY_SERVICE);
-        List<AccessibilityServiceInfo> enabledServices = am.getEnabledAccessibilityServiceList(AccessibilityServiceInfo.FEEDBACK_ALL_MASK);
 
-        for (AccessibilityServiceInfo enabledService : enabledServices) {
-            ServiceInfo enabledServiceInfo = enabledService.getResolveInfo().serviceInfo;
-            if (enabledServiceInfo.packageName.equals(context.getPackageName()) && enabledServiceInfo.name.equals(service.getName()))
-                return true;
-        }
-        return false;
-    }
 
     private Boolean getPermissions(){
         if(!(ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_WIFI_STATE) == PackageManager.PERMISSION_GRANTED))
@@ -323,22 +236,27 @@ public class MainActivity extends AppCompatActivity{
         }
     }
 
-    public void switchToDataActivity(View view){
-        Intent switchToMainActivityIntent = new Intent(this,DataActivity.class);
-        startActivity(switchToMainActivityIntent);
-    }
-
-    public String getOpeningMessage(){
-        String name = loginEngine.getName();
-        Calendar rightNow = Calendar.getInstance();
-        int hour = rightNow.get(Calendar.HOUR_OF_DAY);
-        if(hour>=6 && hour<12)
-            return "Good Morning,\n"+name;
-        else if (hour>=12 && hour<18)
-            return "Good Afternoon,\n"+name;
-        else if(hour>=18 && hour<21)
-            return "Good Evening,\n"+name;
-        else
-            return "Good Night,\n"+name;
+    public void switchToDataActivity(View view) {
+        if (loading) {
+            return;
+        }
+        loading = true;
+        loadingData.show();
+        Intent intent = new Intent(this, DataActivity.class);
+        CompletableFuture<List<GestureData>> future = getGestureDataOnline(uid,FirebaseDatabase.getInstance().getReference().child("users").child(uid),this);
+        future.whenComplete((lst, throwable) ->{
+            loadingData.cancel();
+            loading=false;
+            if(lst!=null){
+                intent.putParcelableArrayListExtra("Data", (ArrayList<? extends Parcelable>) lst);
+                System.out.println("Saved data in the intent!");
+                startActivity(intent);
+            }
+            else{
+                System.out.println("something went wrong, ");
+                throwable.printStackTrace();
+                runOnUiThread(() ->Toast.makeText(this,throwable.getMessage(),Toast.LENGTH_LONG).show());
+            }
+        });
     }
 }

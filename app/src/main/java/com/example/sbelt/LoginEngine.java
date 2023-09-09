@@ -1,20 +1,14 @@
 package com.example.sbelt;
 
-import androidx.annotation.NonNull;
-
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.FirebaseException;
 import com.google.firebase.FirebaseNetworkException;
-import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
 import com.google.firebase.auth.FirebaseAuthInvalidUserException;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserProfileChangeRequest;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 
+import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 
 public class LoginEngine {
@@ -85,7 +79,7 @@ public class LoginEngine {
                     }else{
                         FirebaseException e = (FirebaseException) task1.getException();
                         user.delete().addOnCompleteListener(task11 -> {
-                            if(!task11.isSuccessful()) System.out.println("FETAL ERROR: "+ task11.getException().getMessage());
+                            if(!task11.isSuccessful()) System.out.println("FETAL ERROR: "+ Objects.requireNonNull(task11.getException()).getMessage());
                         });
                         future.completeExceptionally(e);
                     }
@@ -112,7 +106,10 @@ public class LoginEngine {
 
     public String getName(){
         FirebaseUser user = mAuth.getCurrentUser();
-        return user.getProviderData().get(0).getDisplayName();
+        if (user != null)
+            return user.getProviderData().get(0).getDisplayName();
+        else
+            return null;
     }
 }
 

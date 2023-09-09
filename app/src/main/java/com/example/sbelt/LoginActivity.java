@@ -4,9 +4,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
-import android.content.res.Resources;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
@@ -15,12 +13,10 @@ import android.os.Handler;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
 import android.widget.ViewFlipper;
 import com.google.firebase.auth.FirebaseUser;
 
 import java.util.concurrent.CompletableFuture;
-import java.util.function.BiConsumer;
 
 import br.com.simplepass.loadingbutton.customViews.CircularProgressButton;
 
@@ -41,33 +37,28 @@ public class LoginActivity extends AppCompatActivity {
     private CircularProgressButton loginButton;
     private CircularProgressButton registerButton;
 
+    @SuppressLint("CutPasteId")
     private void init(){
-        viewFlipper = (ViewFlipper) findViewById(R.id.viewFlipper);
-        forgotPassViewFlipper = (ViewFlipper) findViewById(R.id.forgotPassViewFlipper);
-        forgotPasswordEmail = (EditText) findViewById(R.id.forgotPassEmail);
-        forgotPassErrorLabel = (TextView) findViewById(R.id.forgotPassErrorLabel);
-        loginEmail = (EditText) findViewById(R.id.loginEmail);
-        loginPassword = (EditText) findViewById(R.id.loginPassword);
-        loginErrorLabel = (TextView) findViewById(R.id.forgotPassErrorLabel);
-        loginButton = (CircularProgressButton) findViewById(R.id.cirLoginButton);
-        registerName = (EditText) findViewById(R.id.registerName);
-        registerEmail = (EditText) findViewById(R.id.registerEmail);
-        registerPassword = (EditText) findViewById(R.id.registerPassword);
-        registerPasswordConfirm = (EditText) findViewById(R.id.registerPasswordConfirm);
-        registerErrorLabel = (TextView) findViewById(R.id.registerErrorLabel);
-        registerButton = (CircularProgressButton) findViewById(R.id.cirRegisterButton);
+        viewFlipper = findViewById(R.id.viewFlipper);
+        forgotPassViewFlipper = findViewById(R.id.forgotPassViewFlipper);
+        forgotPasswordEmail = findViewById(R.id.forgotPassEmail);
+        forgotPassErrorLabel = findViewById(R.id.forgotPassErrorLabel);
+        loginEmail = findViewById(R.id.loginEmail);
+        loginPassword = findViewById(R.id.loginPassword);
+        loginErrorLabel = findViewById(R.id.forgotPassErrorLabel);
+        loginButton = findViewById(R.id.cirLoginButton);
+        registerName = findViewById(R.id.registerName);
+        registerEmail = findViewById(R.id.registerEmail);
+        registerPassword = findViewById(R.id.registerPassword);
+        registerPasswordConfirm = findViewById(R.id.registerPasswordConfirm);
+        registerErrorLabel = findViewById(R.id.registerErrorLabel);
+        registerButton = findViewById(R.id.cirRegisterButton);
 
 
         //Checking if user is already logged in.
         loginEngine = new LoginEngine();
-        if(loginEngine.isLoggedIn()){
+        if(loginEngine.isLoggedIn())
             switchToMainActivity();
-            try{
-                loginEngine.logout();
-            }catch(Exception e){
-                System.out.println("error: "+e.getMessage());
-            }
-        }
     }
 
     @Override
@@ -80,37 +71,34 @@ public class LoginActivity extends AppCompatActivity {
     public void loginPressed(View v){
         loginButton.startAnimation();
         CompletableFuture<FirebaseUser> future = loginEngine.login(loginEmail.getText().toString(),loginPassword.getText().toString());
-        future.whenComplete(new BiConsumer<FirebaseUser, Throwable>() {
-            @Override
-            public void accept(FirebaseUser firebaseUser, Throwable throwable) {
-                if (firebaseUser != null) {
-                    loginButton.doneLoadingAnimation(0x00a5ff, defaultLoginDoneImage());
-                    new Handler().postDelayed(() -> {
-                        try {
-                            loginButton.revertAnimation();
-                            System.out.println("Logged in!, user uid: " + firebaseUser.getUid());
-                            switchToMainActivity();
-                        }catch (Exception e){
-                            e.printStackTrace();
-                            finish();}
-                    },300);
-                } else {
-                    // this is the case we get an exception.
-                    loginButton.doneLoadingAnimation(0x00a5ff, defaultLoginFailImage());
-                    new Handler().postDelayed(() -> {
-                        try {
-                            System.out.println("Failed logging in.");
-                            Thread.sleep(1000);
-                            loginButton.revertAnimation();
-                            loginErrorLabel.setText(throwable.getMessage());
-                            //should be replaced with logs:
-                            System.out.println("Something went wrong:");
-                            throwable.printStackTrace();
-                        }catch (Exception e){
-                            e.printStackTrace();
-                            finish();}
-                    },300);
-                }
+        future.whenComplete((firebaseUser, throwable) -> {
+            if (firebaseUser != null) {
+                loginButton.doneLoadingAnimation(0x00a5ff, defaultLoginDoneImage());
+                new Handler().postDelayed(() -> {
+                    try {
+                        loginButton.revertAnimation();
+                        System.out.println("Logged in!, user uid: " + firebaseUser.getUid());
+                        switchToMainActivity();
+                    }catch (Exception e){
+                        e.printStackTrace();
+                        finish();}
+                },300);
+            } else {
+                // this is the case we get an exception.
+                loginButton.doneLoadingAnimation(0x00a5ff, defaultLoginFailImage());
+                new Handler().postDelayed(() -> {
+                    try {
+                        System.out.println("Failed logging in.");
+                        Thread.sleep(1000);
+                        loginButton.revertAnimation();
+                        loginErrorLabel.setText(throwable.getMessage());
+                        //should be replaced with logs:
+                        System.out.println("Something went wrong:");
+                        throwable.printStackTrace();
+                    }catch (Exception e){
+                        e.printStackTrace();
+                        finish();}
+                },300);
             }
         });
     }
@@ -119,43 +107,42 @@ public class LoginActivity extends AppCompatActivity {
         registerButton.startAnimation();
         CompletableFuture<FirebaseUser> future = loginEngine.register(registerName.getText().toString(),registerEmail.getText().toString(),
                 registerPassword.getText().toString(),registerPasswordConfirm.getText().toString());
-        future.whenComplete(new BiConsumer<FirebaseUser, Throwable>() {
-            @Override
-            public void accept(FirebaseUser firebaseUser, Throwable throwable) {
-                if (firebaseUser != null) {
-                    registerButton.doneLoadingAnimation(0x00a5ff, defaultLoginDoneImage());
-                    new Handler().postDelayed(() -> {
-                        try {
-                            registerButton.revertAnimation();
-                            System.out.println("Registered!, user uid: " + firebaseUser.getUid());
-                            switchToMainActivity();
-                        }catch (Exception e){
-                            e.printStackTrace();
-                            finish();}
-                    },300);
-                } else {
-                    // this is the case we get an exception.
-                    registerButton.doneLoadingAnimation(0x00a5ff, defaultLoginFailImage());
-                    new Handler().postDelayed(() -> {
-                        try {
-                            Thread.sleep(1000);
-                            registerButton.revertAnimation();
-                            registerErrorLabel.setText(throwable.getMessage());
-                            //should be replaced with logs:
-                            System.out.println("Something went wrong:");
-                            throwable.printStackTrace();
-                        }catch (Exception e){
-                            e.printStackTrace();
-                            finish();}
-                    },300);
-                }
+        future.whenComplete((firebaseUser, throwable) -> {
+            if (firebaseUser != null) {
+                registerButton.doneLoadingAnimation(0x00a5ff, defaultLoginDoneImage());
+                new Handler().postDelayed(() -> {
+                    try {
+                        registerButton.revertAnimation();
+                        System.out.println("Registered!, user uid: " + firebaseUser.getUid());
+                        switchToMainActivity();
+                    }catch (Exception e){
+                        e.printStackTrace();
+                        finish();}
+                },300);
+            } else {
+                // this is the case we get an exception.
+                registerButton.doneLoadingAnimation(0x00a5ff, defaultLoginFailImage());
+                new Handler().postDelayed(() -> {
+                    try {
+                        Thread.sleep(1000);
+                        registerButton.revertAnimation();
+                        registerErrorLabel.setText(throwable.getMessage());
+                        //should be replaced with logs:
+                        System.out.println("Something went wrong:");
+                        throwable.printStackTrace();
+                    }catch (Exception e){
+                        e.printStackTrace();
+                        finish();}
+                },300);
             }
         });
     }
 
+    @SuppressLint("UseCompatLoadingForDrawables")
     private Bitmap defaultLoginDoneImage(){
         return drawableToBitmap(getDrawable(R.drawable.baseline_check_24));
     }
+    @SuppressLint("UseCompatLoadingForDrawables")
     private Bitmap defaultLoginFailImage(){
         return drawableToBitmap(getDrawable(R.drawable.baseline_close_24));
     }
@@ -189,15 +176,11 @@ public class LoginActivity extends AppCompatActivity {
             return;
         }
         CompletableFuture<Boolean> future = loginEngine.sendPasswordChangeEmail(forgotPasswordEmail.getText().toString());
-        future.whenComplete(new BiConsumer<Boolean, Throwable>() {
-            @SuppressLint("SetTextI18n")
-            @Override
-            public void accept(Boolean done, Throwable throwable) {
-                if(done!=null){
-                    forgotPassErrorLabel.setText("Error: "+throwable.getMessage());
-                }else{
-                    forgotPassErrorLabel.setText("Email sent.");
-                }
+        future.whenComplete((done, throwable) -> {
+            if(done!=null){
+                forgotPassErrorLabel.setText("Error: "+throwable.getMessage());
+            }else{
+                forgotPassErrorLabel.setText("Email sent.");
             }
         });
     }

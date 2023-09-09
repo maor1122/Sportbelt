@@ -30,4 +30,10 @@ public class LoadingData extends Dialog {
         @SuppressLint("InflateParams") View view = LayoutInflater.from(context).inflate(R.layout.loading_data_layout,null);
         setContentView(view);
     }
+    @Override
+    public void cancel(){
+        try {
+            super.cancel();
+        }catch (Exception ignored){}
+    }
 }

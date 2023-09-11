@@ -35,6 +35,7 @@ public class HowToUseActivity extends AppCompatActivity {
                         new Slide("Press \"Sportbelt service\"", "", R.drawable.press_sportbelt_service),
                         new Slide("Turn the service on", "", R.drawable.turn_the_service_on),
                         new Slide("Open the application of your choice", "You can use any application, although sportbelt is best used on swiping games", R.drawable.open_game),
+                        new Slide("Move To Trigger Swipes","Jump to trigger an upper swipe, crouch to trigger down swipe, and move left or right to trigger left/right swipes correspondingly",R.drawable.move_to_swipe),
                         new Slide("Saving Data", "After finishing using the service, you can save the data by pressing the \"Save Data\" button.", R.drawable.save_data),
                         new Slide("Browsing The Data", "Later, you can browse the data of previous usage by pressing the \"Data\" button", R.drawable.browse_data)
                 ))

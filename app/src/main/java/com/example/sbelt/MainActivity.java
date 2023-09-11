@@ -81,8 +81,9 @@ public class MainActivity extends AppCompatActivity{
             return;
         }
         loading = true;
-        //TODO: Fill function.
+        Intent howToUseIntent = new Intent(this, HowToUseActivity.class);
         loading=false;
+        startActivity(howToUseIntent);
     }
 
     public void saveData(View view){

@@ -42,7 +42,8 @@
                 android:layout_height="80dp"
                 android:layout_gravity="end"
                 android:layout_marginEnd="20dp"
-                android:src="@drawable/logo_white" />
+                android:src="@drawable/logo_white"
+                android:contentDescription="@string/app_name"/>
         </GridLayout>
 
         <LinearLayout
@@ -68,22 +69,23 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_marginTop="@dimen/horizontal_card"
-                    android:layout_marginBottom="@dimen/horizontal_card"
-                    android:orientation="vertical">
+                    android:orientation="horizontal">
 
-                    <GridLayout
-                        android:layout_width="match_parent"
+                    <LinearLayout
+                        android:layout_width="0dp"
                         android:layout_height="match_parent"
                         android:layout_margin="30dp"
-                        tools:ignore="UselessParent">
+                        tools:ignore="UselessParent"
+                        android:orientation="vertical"
+                        android:layout_weight="50"
+                        >
 
                         <Button
                             android:id="@+id/startButton"
-                            android:layout_width="150dp"
-                            android:layout_height="130dp"
-                            android:layout_row="0"
-                            android:layout_column="0"
-                            android:layout_marginBottom="5dp"
+                            android:layout_width="match_parent"
+                            android:layout_height="0dp"
+                            android:layout_weight="33.3"
+                            android:layout_marginBottom="@dimen/fab_margin"
                             android:background="@drawable/menu_button_shape"
                             android:drawableTop="@drawable/play_button_background"
                             android:fontFamily="@font/bariol_bold"
@@ -93,15 +95,66 @@
                             android:textAllCaps="false"
                             android:textColor="#209EB1"
                             android:textSize="20sp"
+                            android:textStyle="bold"
+                            tools:ignore="NestedWeights" />
+
+                        <Button
+                            android:id="@+id/howToUseButton"
+                            android:layout_width="match_parent"
+                            android:layout_height="0dp"
+                            android:layout_marginBottom="@dimen/fab_margin"
+                            android:layout_weight="33.3"
+                            android:background="@drawable/menu_button_shape"
+                            android:drawableTop="@drawable/how_to_use_button_background"
+                            android:fontFamily="@font/bariol_bold"
+                            android:onClick="howToUse"
+                            android:text="@string/how_to_use"
+                            android:textAlignment="center"
+                            android:textAllCaps="false"
+                            android:textColor="#209EB1"
+                            android:textSize="20sp"
+                            android:textStyle="bold"
+                            tools:ignore="NestedWeights" />
+
+                        <Button
+                            android:id="@+id/logoutButton"
+                            android:layout_width="match_parent"
+                            android:layout_height="0dp"
+                            android:layout_marginBottom="@dimen/fab_margin"
+                            android:layout_weight="33.3"
+                            android:background="@drawable/menu_button_shape"
+                            android:drawableTop="@drawable/logout_button_background"
+                            android:fontFamily="@font/bariol_bold"
+                            android:onClick="logout"
+                            android:text="@string/logout"
+                            android:textAlignment="center"
+                            android:textAllCaps="false"
+                            android:textColor="#209EB1"
+                            android:textSize="20sp"
                             android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/ButtonPlaceholder"
+                            android:layout_width="match_parent"
+                            android:layout_height="0dp"
+                            android:layout_weight="15"
+                            tools:ignore="text" />
+                    </LinearLayout>
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_margin="30dp"
+                        tools:ignore="UselessParent"
+                        android:orientation="vertical"
+                        android:layout_weight="50"
+                        >
 
                         <Button
                             android:id="@+id/dataButton"
-                            android:layout_width="150dp"
-                            android:layout_height="130dp"
-                            android:layout_row="0"
-                            android:layout_column="2"
-                            android:layout_marginBottom="5dp"
+                            android:layout_width="match_parent"
+                            android:layout_height="0dp"
+                            android:layout_marginBottom="@dimen/fab_margin"
+                            android:layout_weight="33.3"
                             android:background="@drawable/menu_button_shape"
                             android:drawableTop="@drawable/data_button_background"
                             android:fontFamily="@font/bariol_bold"
@@ -115,12 +168,10 @@
 
                         <Button
                             android:id="@+id/saveDataButton"
-                            android:layout_width="150dp"
-                            android:layout_height="130dp"
-                            android:layout_row="1"
-                            android:layout_column="2"
-                            android:layout_marginBottom="5dp"
-                            android:layout_marginTop="@dimen/fab_margin"
+                            android:layout_width="match_parent"
+                            android:layout_height="0dp"
+                            android:layout_weight="33.3"
+                            android:layout_marginBottom="@dimen/fab_margin"
                             android:background="@drawable/menu_button_shape"
                             android:drawableTop="@drawable/save_data_button_background"
                             android:fontFamily="@font/bariol_bold"
@@ -132,46 +183,21 @@
                             android:textSize="20sp"
                             android:textStyle="bold" />
 
-                        <Button
-                            android:id="@+id/howToUseButton"
-                            android:layout_width="150dp"
-                            android:layout_height="130dp"
-                            android:layout_row="1"
-                            android:layout_column="0"
-                            android:layout_marginBottom="5dp"
-                            android:layout_marginTop="@dimen/fab_margin"
-                            android:background="@drawable/menu_button_shape"
-                            android:drawableTop="@drawable/how_to_use_button_background"
-                            android:fontFamily="@font/bariol_bold"
-                            android:onClick="howToUse"
-                            android:text="@string/how_to_use"
-                            android:textAlignment="center"
-                            android:textAllCaps="false"
-                            android:textColor="#209EB1"
-                            android:textSize="20sp"
-                            android:textStyle="bold" />
+                        <TextView
+                            android:id="@+id/ButtonPlaceholder1"
+                            android:layout_width="match_parent"
+                            android:layout_height="0dp"
+                            android:layout_weight="33.3"
+                            android:layout_marginBottom="@dimen/fab_margin"
+                            tools:ignore="text" />
+                        <TextView
+                            android:id="@+id/ButtonPlaceholder2"
+                            android:layout_width="match_parent"
+                            android:layout_height="0dp"
+                            android:layout_weight="15"
+                            tools:ignore="text" />
 
-                        <Button
-                            android:id="@+id/logoutButton"
-                            android:layout_width="150dp"
-                            android:layout_height="130dp"
-                            android:layout_row="2"
-                            android:layout_column="0"
-                            android:layout_marginBottom="5dp"
-                            android:layout_marginTop="@dimen/fab_margin"
-                            android:background="@drawable/menu_button_shape"
-                            android:drawableTop="@drawable/logout_button_background"
-                            android:fontFamily="@font/bariol_bold"
-                            android:onClick="logout"
-                            android:text="@string/logout"
-                            android:textAlignment="center"
-                            android:textAllCaps="false"
-                            android:textColor="#209EB1"
-                            android:textSize="20sp"
-                            android:textStyle="bold" />
-
-                    </GridLayout>
-
+                    </LinearLayout>
                 </LinearLayout>
             </RelativeLayout>
 

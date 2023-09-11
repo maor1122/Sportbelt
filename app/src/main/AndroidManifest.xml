@@ -29,6 +29,10 @@
             </intent-filter>
         </activity>
         <activity
+            android:name=".HowToUseActivity"
+            android:exported="false"
+            />
+        <activity
             android:name=".DataActivity"
             android:exported="false" />
         <service android:name=".MyAccessibilityService"

@@ -15,4 +15,6 @@
     <string name="welcome">Welcome</string>
     <string name="back">Back</string>
     <string name="last_week">Past Week Gestures</string>
+    <string name="skip_intro">SKIP INTRO</string>
+    <string name="next">NEXT</string>
 </resources>

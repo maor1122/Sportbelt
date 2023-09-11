@@ -77,34 +77,36 @@ public class MyAccessibilityService extends AccessibilityService {
 
                 String direction = "NULL";
                 String[] parameters = receivedData.split("&");
+                String param;
+                if(parameters.length>1)
+                    param = parameters[1];
+                else param = parameters[0];
                 String[] data;
-                for (String param : parameters) {
-                    data = param.split("=");
-                    System.out.println("Received udp message: " + "Received data: " + receivedData);
-                    if (data.length < 2) continue;
-                    try {
-                        gestures++;
-                        switch (data[0]) {
-                            case "x":
-                                if (Double.parseDouble(data[1]) < 0) {
-                                    direction = "UP";
-                                } else if (Double.parseDouble(data[1]) > 0) {
-                                    direction = "DOWN";
-                                }
-                                break;
-                            case "y":
-                                if (Double.parseDouble(data[1]) > 0) {
-                                    direction = "LEFT";
-                                } else if (Double.parseDouble(data[1]) < 0) {
-                                    direction = "RIGHT";
-                                }
-                        }
-                        if (!direction.equals("NULL"))
-                            swipe(direction);
-                        else
-                            gestures--;
-                    }catch(NumberFormatException ignored){}
-                }
+                data = param.split("=");
+                System.out.println("Received udp message: " + "Received data: " + receivedData);
+                if (data.length < 2) continue;
+                try {
+                    gestures++;
+                    switch (data[0]) {
+                        case "x":
+                            if (Double.parseDouble(data[1]) < 0) {
+                                direction = "UP";
+                            } else if (Double.parseDouble(data[1]) > 0) {
+                                direction = "DOWN";
+                            }
+                            break;
+                        case "y":
+                            if (Double.parseDouble(data[1]) > 0) {
+                                direction = "LEFT";
+                            } else if (Double.parseDouble(data[1]) < 0) {
+                                direction = "RIGHT";
+                            }
+                    }
+                    if (!direction.equals("NULL"))
+                        swipe(direction);
+                    else
+                        gestures--;
+                }catch(NumberFormatException ignored){}
             }
         }catch (IOException e) {
             e.printStackTrace();

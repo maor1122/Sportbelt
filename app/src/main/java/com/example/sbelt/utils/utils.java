@@ -15,7 +15,7 @@ public class utils {
 
     public static final String PREFS_NAME = "GesturesData";
     public static final int BROADCAST_PORT = 5555;
-    public static final int DELAY = 1000;
+    public static final int DELAY = 100;
     public static final LinkedList<String> WEEKDAYS = new LinkedList<>(Arrays.asList(
             "Sunday",
             "Monday",

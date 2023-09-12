@@ -244,7 +244,7 @@ public class MainActivity extends AppCompatActivity{
         loading = true;
         loadingData.show();
         Intent intent = new Intent(this, DataActivity.class);
-        CompletableFuture<List<GestureData>> future = getGestureDataOnline(uid,FirebaseDatabase.getInstance().getReference().child("users").child(uid),this);
+        CompletableFuture<List<GestureData>> future = getGestureDataOnline(FirebaseDatabase.getInstance().getReference().child("users").child(uid));
         future.whenComplete((lst, throwable) ->{
             loadingData.cancel();
             loading=false;

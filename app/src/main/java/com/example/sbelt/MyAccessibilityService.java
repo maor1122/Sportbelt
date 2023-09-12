@@ -163,7 +163,6 @@ public class MyAccessibilityService extends AccessibilityService {
                 case "LEFT":
                     swipeLeft();
                     System.out.println("LEFT");
-                    //customSwipeLeft();
                     break;
                 case "RIGHT":
                     swipeRight();

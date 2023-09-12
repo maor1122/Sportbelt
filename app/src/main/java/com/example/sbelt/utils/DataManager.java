@@ -6,10 +6,12 @@ import android.content.Context;
 import android.content.SharedPreferences;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -23,12 +25,29 @@ public class DataManager {
         CompletableFuture<Boolean> future = new CompletableFuture<>();
         new Thread(() -> {
             List<GestureData> newData = getLocalGestureDataList(uid,context);
+            System.out.println("userRef = "+userRef);
             if (newData == null) {
                 future.completeExceptionally(new Exception("No data to save."));
                 return;
             }
             System.out.println("Saving data of size: " + newData.size());
             try {
+                DatabaseReference connectedRef = FirebaseDatabase.getInstance().getReference(".info/connected");
+                connectedRef.addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot snapshot) {
+                        boolean connected = Boolean.TRUE.equals(snapshot.getValue(Boolean.class));
+                        if (!connected)
+                            future.completeExceptionally(new Exception("Error - check internet connection"));
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError error) {
+                        future.completeExceptionally(error.toException());
+                    }
+                });
+                if(future.isCompletedExceptionally())
+                    return;
                 userRef.child("gestures").addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -42,13 +61,13 @@ public class DataManager {
                         existingData.addAll(newData);
                         removeLocalGestureDataList(uid,context); //Delete all saved data.
                         userRef.child("gestures").setValue(existingData);
-                        future.complete(true);
                     }
 
                     @Override
                     public void onCancelled(@NonNull DatabaseError error) {
                         future.completeExceptionally(error.toException());
                     }
+
                 });
             } catch (Exception e) {
                 future.completeExceptionally(e);
@@ -57,7 +76,7 @@ public class DataManager {
         return future;
     }
 
-    public static CompletableFuture<List<GestureData>> getGestureDataOnline(String uid, DatabaseReference userRef, Context context) {
+    public static CompletableFuture<List<GestureData>> getGestureDataOnline(DatabaseReference userRef) {
         CompletableFuture<List<GestureData>> future = new CompletableFuture<>();
         try {
             userRef.child("gestures").addListenerForSingleValueEvent(new ValueEventListener() {

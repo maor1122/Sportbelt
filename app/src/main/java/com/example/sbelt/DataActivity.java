@@ -130,10 +130,6 @@ public class DataActivity extends AppCompatActivity {
         YAxis yAxis = lineChart.getAxisLeft();
         yAxis.setAxisLineColor(Color.BLACK);
         yAxis.setPosition(YAxis.YAxisLabelPosition.OUTSIDE_CHART);
-        //yAxis.setAxisMinimum(0f);
-        //yAxis.setLabelCount(8);
-        //yAxis.setGranularity(5f);
-
         lineChart.invalidate();
     }
 

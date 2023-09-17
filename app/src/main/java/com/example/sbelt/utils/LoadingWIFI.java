@@ -16,7 +16,8 @@ import com.example.sbelt.R;
 
 import java.util.Objects;
 
-public class LoadingWIFI extends Dialog {
+public class
+LoadingWIFI extends Dialog {
     public LoadingWIFI(@NonNull Context context) {
         super(context);
 

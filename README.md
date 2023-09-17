@@ -1,4 +1,4 @@
-<img src="app/src/main/res/drawable-mdpi/Sportbelt - logo.jpeg" width="400" height="250" />
+<img src="app/src/main/res/drawable-mdpi/sportbelt_logo.jpeg" width="400" height="250" />
 
 With the advancement of technology, more and more children are opting for sedentary screen time rather than participating in traditional sports and outdoor games. Sportbelt aims to bridge this gap by offering a solution that combines the convenience of smartphone usage with physical exercise.
 Sportbelt comprises a belt-mounted hardware device and an accompanying Android application. When the user activates the application and wears the belt, the hardware component enables a range of motion-based functionalities. moving left, right, jumping and crouching will trigger a left, right, upward and downward swipe correspondingly. these actions performed best with swiping games, although they work with all smartphone applications. In addition, all previous data can be seen and analyzed from the app later.

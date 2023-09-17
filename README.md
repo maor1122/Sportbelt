@@ -5,6 +5,7 @@ Sportbelt comprises a belt-mounted hardware device and an accompanying Android a
 By incorporating physical movements into smartphone interactions, Sportbelt encourages users to engage in exercise while using their phones. This innovative approach allows children, and potentially users of all ages, to continue enjoying their mobile devices while promoting an active lifestyle.
 # How to use:
 move or jump left/right/up or crouch for the phone to swipe left/right/up or down respectively.
+<img src="app/src/main/res/drawable-mdpi/move_to_swipe.png" />
 
 # How to start the service:
 Download the application, register/login, connect to the sportbelt wifi, and press start!

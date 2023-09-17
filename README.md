@@ -12,7 +12,7 @@ move or jump left/right/up or crouch for the phone to swipe left/right/up or dow
 
 
 # How to start the service:
-Download the application, register/login, connect to the sportbelt wifi, and press start!
+Download the application, register/login, turn on the hardware component, and press start!
 
 <img src="app/src/main/res/drawable-mdpi/components.jpeg" />
 

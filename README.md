@@ -7,6 +7,10 @@ By incorporating physical movements into smartphone interactions, Sportbelt enco
 move or jump left/right/up or crouch for the phone to swipe left/right/up or down respectively.
 <img src="app/src/main/res/drawable-mdpi/move_to_swipe.png" />
 
+# Showcase:
+<img src="app/src/main/res/drawable-mdpi/showcase.gif" />
+
+
 # How to start the service:
 Download the application, register/login, connect to the sportbelt wifi, and press start!
 

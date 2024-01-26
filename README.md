@@ -8,8 +8,15 @@ move or jump left/right/up or crouch for the phone to swipe left/right/up or dow
 <img src="app/src/main/res/drawable-mdpi/move_to_swipe.png" />
 
 # Showcase:
-<img src="app/src/main/res/drawable-mdpi/showcase.gif" />
+<video src='https://github.com/maor1122/Sportbelt/assets/62097305/6bd44a3d-3570-44eb-adb9-35b1e2ca8d10' height='400' width='600' autoplay loop>
+</video>
 
+<p align="left">
+  <img src="res/login.jpeg" width="20%" height="20%">
+  <img src="res/menu.jpeg" width="20%" height="20%">
+  <img src="res/how-to-use.jpeg" width="20%" height="20%">
+  <img src="res/data.jpeg" width="20%" height="398">
+</p>
 
 # How to start the service:
 Download the application, register/login, turn on the hardware component, and press start!

@@ -15,7 +15,7 @@ move or jump left/right/up or crouch for the phone to swipe left/right/up or dow
   <img src="res/login.jpeg" width="20%" height="20%">
   <img src="res/menu.jpeg" width="20%" height="20%">
   <img src="res/how-to-use.jpeg" width="20%" height="20%">
-  <img src="res/data.jpeg" width="20%" height="398">
+  <img src="res/data.jpeg" width="20%" height="20%">
 </p>
 
 # How to start the service:
